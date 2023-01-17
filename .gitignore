@@ -1,3 +1,16 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IPython Notebook
+.ipynb_checkpoints
+
 .Rproj.user
 .Rhistory
 .RData
