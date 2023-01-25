@@ -5,6 +5,9 @@ Handle configuration files
 '''
 import pandas as pd
 import numpy as np
+import pkgutil
+import os.path
+import yaml
 
 def get_configuration(config_name, config_type, config_paths = None):
     '''
@@ -18,10 +21,24 @@ def get_configuration(config_name, config_type, config_paths = None):
                     and optional agg/disagg configuration file(s). 
                     If NULL, built-in config files are used.
 
-    return: A list of model specifications.
+    return: A dictionary of model specifications.
     '''
     config_file = f"{config_name}.yml"
-    pass
+    if config_paths is None:
+        config_path = f"inst/extdata/{config_type}specs/{config_file}"
+        config = pkgutil.get_data(__name__,config_path)
+        config = yaml.safe_load(config)
+    else:
+        config_path = list(filter(lambda path: path.endswith(config_file), config_paths))[0] #TODO: if config_paths is a list that includes agg/disagg confs, how to get right one?
+        try:
+            with open(config_path, 'r') as conf:
+                config = yaml.safe_load(conf)
+        except:
+            print(f"{config_file} must be available in {path.dirname(config_path)}")
+    
+    return(config)
+
+
 
 def see_available_models():
     '''
