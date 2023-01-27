@@ -3,6 +3,7 @@
 
 import pandas as pd
 import numpy as np
+import importlib.resources
 
 
 def start_logging():
@@ -288,15 +289,25 @@ def map_location_codes_to_names(codes, code_system):
 
 def get_vector_of_codes(io_schema, io_level, col_name):
     '''
-    #' Extract desired columns from SchemaInfo, return vectors with strings of codes.
-    #' @param ioschema A numeric value of either 2012 or 2007 specifying the io schema year.
-    #' @param iolevel Level of detail, can be "Sector", "Summary, "Detail".
-    #' @param colName A text value specifying desired column name.
-    #' @return A vector of codes.
+    Extract desired columns from SchemaInfo, return vectors with strings of codes.
+    
+    Keyword arguments:
+    io_schema:  A numeric value of either 2012 or 2007 specifying the io schema year.
+    iolevel:    Level of detail, can be "Sector", "Summary, "Detail".
+    col_name:   A text value specifying desired column name.
+    
+    return:     A vector of codes.
     '''
-    pass
+    schema_info_file_name = f"{io_schema}_{io_level}_Schema_Info.csv"
+    schema_info_file = importlib.resources.files('useeio_py.inst.extdata').joinpath(schema_info_file_name)
+    schema_info = pd.read_csv(schema_info_file, header = 0)
+    schema_info_out = (schema_info.filter(items = ["Code", col_name])
+        .dropna()
+        .filter(items = ['Code'])
+    )
+    return(schema_info_out)
     '''
-    SchemaInfoFile <- paste(ioschema, iolevel, "Schema_Info.csv", sep = "_")
+    #SchemaInfoFile <- paste(ioschema, iolevel, "Schema_Info.csv", sep = "_")
     SchemaInfo <- utils::read.table(system.file("extdata", SchemaInfoFile, package = "useeior"),
                                     sep = ",", header = TRUE, stringsAsFactors = FALSE, check.names = FALSE)
     return(as.vector(stats::na.omit(SchemaInfo[, c("Code", colName)])[, "Code"]))

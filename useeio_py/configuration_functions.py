@@ -34,7 +34,7 @@ def get_configuration(config_name, config_type, config_paths = None):
             with open(config_path, 'r') as conf:
                 config = yaml.safe_load(conf)
         except:
-            print(f"{config_file} must be available in {path.dirname(config_path)}")
+            print(f"{config_file} must be available in {os.path.dirname(config_path)}")
     
     return(config)
 

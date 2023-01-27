@@ -1,1 +1,13 @@
 include LICENSE
+include useeio_py/data/*.parquet
+include useeio_py/inst/extdata/*.xls
+include useeio_py/inst/extdata/*.csv
+include useeio_py/inst/extdata/*.yml
+include useeio_py/inst/extdata/modelspecs/*.yml
+include useeio_py/inst/extdata/hybridizationspecs/*.csv
+include useeio_py/inst/extdata/hybridizationspecs/*.yml
+include useeio_py/inst/extdata/aggspecs/*.yml
+include useeio_py/inst/extdata/demandspecs/*.yml
+include useeio_py/inst/extdata/disaggspecs/*.csv
+include useeio_py/inst/extdata/disaggspecs/*.yml
+include useeio_py/inst/extdata/metadata/*.json
