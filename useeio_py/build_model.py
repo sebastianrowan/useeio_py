@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 from classes import Model
+from . import load_io_tables
 
 #TODO: Most or all of these functions can probably be wrapped into methods inside the Model class and called on __init__()
 
@@ -21,11 +22,11 @@ def build_model(model_name, config_paths = None):
     '''
     #TODO: add these functions as methods in the model class.
     model = Model(model_name, config_paths)
-    model.load_io_data()
-    model.load_and_build_satellite_tables()
-    model.load_and_build_indicators()
-    model.load_demand_vectors()
-    model.construct_EEIO_matrices()
+    #load_io_tables.load_io_data(model)
+    load_and_build_satellite_tables(model)
+    load_and_build_indicators(model)
+    load_demand_vectors(model)
+    construct_EEIO_matrices(model)
     # model = initialize_model(model_name, config_paths) #DONE
     # model = load_io_data(model, config_paths)
     # model = load_and_build_satellite_tables(model)
