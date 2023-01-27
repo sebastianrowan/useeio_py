@@ -102,8 +102,6 @@ def load_and_build_satellite_tables(model):
     #' @return A model object with Satellite tables added
     '''
     model.SatelliteTables = load_sat_tables(model)
-    return(model)
-
 
 def generate_tbs_from_sat_spec(sat_spec, model):
     '''

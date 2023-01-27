@@ -1,18 +1,28 @@
 # -*- coding: utf-8 -*-
 '''Functions for loading input-output tables'''
 
+import importlib.resources
 import pandas as pd
+from .utility_functions import get_vector_of_codes, stack
 import numpy as np
 
 def load_io_data(model, config_paths = None):
     '''
-    #' Prepare economic components of an EEIO form USEEIO model.
-    #' @param model An EEIO form USEEIO model object with model specs loaded
-    #' @param configpaths str vector, paths (including file name) of model configuration file
-    #' and optional agg/disagg configuration file(s). If NULL, built-in config files are used.
-    #' @return A list with EEIO form USEEIO model economic components.
+    Prepare economic components of an EEIO form USEEIO model
     '''
-    pass
+    # Declare model IO objects
+    print("Initializing IO tables...")
+    # Load model IO meta
+    load_io_tables.load_io_meta(self)
+    io_table_names = [
+        "MakeTransactions", "UseTransactions", "DomesticUseTransactions",
+        "UseValueAdded", "FinalDemand", "DomesticFinalDemand",
+        "InternationalTradeAdjustment"
+    ]
+    if model.specs['IODataSource'] == "BEA":
+        io_codes = load_io_codes()
+        for name in io_table_names:
+            setattr(model, name, load_national_io_data(io_codes)[name])
     '''
     # Declare model IO objects
     logging::loginfo("Initializing IO tables...")
@@ -79,110 +89,133 @@ def load_io_data(model, config_paths = None):
     '''
 
 def load_io_meta(model):
-    '''
-    #' Prepare metadata of economic components of an EEIO form USEEIO model.
-    #' @param model A model object with model specs loaded.
-    #' @return A list with USEEIO model economic components' metadata.
-    '''
-    pass
-    '''
-    io_codes <- loadIOcodes(model$specs)
-    model_base_elements <- names(model)
-    model$Commodities <- merge(as.data.frame(io_codes$Commodities, stringsAsFactors = FALSE),
-                                utils::read.table(system.file("extdata", "USEEIO_Commodity_Meta.csv",
-                                                            package = "useeior"),
-                                                sep = ",", header = TRUE, stringsAsFactors = FALSE),
-                                by.x = "io_codes$Commodities", by.y = "Code",
-                                all.x = TRUE, sort = FALSE)
-    model$Industries <- get(paste(model$specs$BaseIOLevel, "IndustryCodeName",
-                                    model$specs$BaseIOSchema, sep = "_"))
-    model$FinalDemandMeta <- merge(get(paste(model$specs$BaseIOLevel, "FinalDemandCodeName",
-                                            model$specs$BaseIOSchema, sep = "_")),
-                                    utils::stack(io_codes[c("HouseholdDemandCodes",
-                                                            "InvestmentDemandCodes",
-                                                            "ChangeInventoriesCodes",
-                                                            "ExportCodes", "ImportCodes",
-                                                            "GovernmentDemandCodes")]),
-                                    by = 1, sort = FALSE)
-    if (model$specs$IODataSource=="BEA") {
-        model$InternationalTradeAdjustmentMeta <- utils::stack(io_codes["InternationalTradeAdjustmentCodes"])
-    }
-    model$MarginSectors <- utils::stack(io_codes[c("TransportationCodes",
-                                                    "WholesaleCodes", "RetailCodes")])
-    model$ValueAddedMeta <- get(paste(model$specs$BaseIOLevel, "ValueAddedCodeName",
-                                        model$specs$BaseIOSchema, sep = "_"))
-    model_meta <- names(model)[!names(model) %in% model_base_elements]
-    # Format model IO meta and add Code_Loc column
-    for (meta in model_meta) {
-        # Change column names
-        if (meta=="Commodities") {
-        colnames(model[[meta]])[1] <- "Code"
-        } else {
-        colnames(model[[meta]]) <- c("Code", "Name", "Group")[1:ncol(model[[meta]])]
-        }
-        # Create a code_loc table
-        code_loc <- cbind(model[[meta]][["Code"]], rep(model$specs$ModelRegionAcronyms,
-                                                    each = length(model[[meta]][["Code"]])))
-        # Repeat model IO meta df to prepare for adding Code_Loc
-        model[[meta]] <- as.data.frame(lapply(model[[meta]], rep,
-                                            nrow(code_loc)/nrow(model[[meta]])))
-        model[[meta]][] <- lapply(model[[meta]], as.character)
-        # Add Code_Loc column
-        model[[meta]][["Code_Loc"]] <- apply(code_loc, 1, FUN = joinStringswithSlashes)
-    } 
-    model$Commodities$Unit <- "USD"
-    model$Industries$Unit <- "USD"
-    # Apply final touches to FinalDemandMeta and MarginSectors
-    model$FinalDemandMeta$Group <- gsub(c("Codes|DemandCodes"), "",
-                                        model$FinalDemandMeta$Group)
-    model$MarginSectors$Name <- gsub(c("Codes"), "", model$MarginSectors$Name)
-    return(model)
-    '''
+    '''Prepare metadata of economic components of an EEIO form USEEIO model'''
+    io_codes = load_io_codes(model)
+    model_base_elements = model.get_elements()
 
-def load_io_codes(specs):
-    '''
-    #' Load BEA IO codes in a list based on model config.
-    #' @param specs Model specifications.
-    #' @return A list with BEA IO codes.
-    '''
-    pass
-    '''
-    io_codes <- list()
-    # Get IO sector codes by group
-    io_codes[c("Commodities", "Industries")] <- lapply(c("Commodity", "Industry"),
-                                                        FUN = getVectorOfCodes,
-                                                        ioschema = specs$BaseIOSchema,
-                                                        iolevel = specs$BaseIOLevel)
-    codes <- c("ValueAdded", "HouseholdDemand", "InvestmentDemand",
-                "ChangeInventories", "Export", "Import", "GovernmentDemand",
-                "Scrap", "Transportation", "Wholesale", "Retail")
-    io_codes[paste0(codes, "Codes")] <- lapply(codes, FUN = getVectorOfCodes,
-                                                ioschema = specs$BaseIOSchema,
-                                                iolevel = specs$BaseIOLevel)
-    io_codes$FinalDemandCodes <- unlist(io_codes[paste0(c("HouseholdDemand",
-                                                            "InvestmentDemand",
-                                                            "ChangeInventories",
-                                                            "Export", "Import",
-                                                            "GovernmentDemand"),
-                                                        "Codes")],
-                                        use.names = FALSE)
-    io_codes$InternationalTradeAdjustmentCodes <- gsub("F050", "F051", io_codes$ImportCodes)
-    return(io_codes)
-    '''
+    model.Commodities = pd.merge(
+        io_codes['Commodities'],
+        pd.read_csv(
+            importlib.resources.files('useeio_py.inst.extdata').joinpath("USEEIO_Commodity_Meta.csv"),
+            header = 0
+        ),
+        how = 'left',
+        on = 'Code'
+    )
+            
+    model.Industries = pd.read_parquet(
+        importlib.resources.files('useeio_py.data').joinpath(
+            f"{model.specs['BaseIOLevel']}_IndustryCodeName_{model.specs['BaseIOSchema']}.parquet"
+        )
+    )
+    
+    merge_code_names = [
+        "HouseholdDemandCodes","InvestmentDemandCodes","ChangeInventoriesCodes",
+        "ExportCodes","ImportCodes","GovernmentDemandCodes"
+    ]
+    model.FinalDemandMeta = pd.merge(
+        pd.read_parquet(
+            importlib.resources.files('useeio_py.data').joinpath(
+                f"{model.specs['BaseIOLevel']}_FinalDemandCodeName_{model.specs['BaseIOSchema']}.parquet"
+            )
+        ),
+        stack(io_codes, merge_code_names),
+        left_on=f"BEA_{model.specs['BaseIOSchema']}_{model.specs['BaseIOLevel']}_FinalDemand_Code",
+        right_on="Code"
+    )
+    model.FinalDemandMeta = model.FinalDemandMeta.drop(columns = 'Code')
+    
+    if model.specs["IODataSource"] == "BEA":
+        model.InternationalTradeAdjustmentMeta = stack(io_codes, ["InternationalTradeAdjustmentCodes"])
+    model.MarginSectors = stack(io_codes, ["TransportationCodes", "WholesaleCodes", "RetailCodes"])
+    model.ValueAddedMeta = pd.read_parquet(
+        importlib.resources.files('useeio_py.data').joinpath(
+            f"{model.specs['BaseIOLevel']}_ValueAddedCodeName_{model.specs['BaseIOSchema']}.parquet"
+        )
+    )
+    model_meta = list(filter(
+        lambda x: x not in model_base_elements,
+        model.get_elements()
+    ))
+    for meta in model_meta:
+        # Change column names
+        meta_val = getattr(model, meta)
+        if meta == "Commodities":
+            setattr(model, meta,
+                getattr(model, meta).rename(
+                    columns = {getattr(model, meta).columns[0]:"Code"}
+                )
+            )
+        else:
+            ncol = getattr(model, meta).shape[1]
+            getattr(model, meta).columns = ["Code", "Name", "Group"][0:ncol]
+        # Create a code_loc table
+        loc = f"{model.specs['ModelRegionAcronyms'][0]}/"
+        getattr(model, meta)['Code_Loc'] = loc + getattr(model, meta)['Code'].astype(str)
+    model.Commodities["Unit"] = "USD"
+    model.Industries["Unit"] = "USD"
+    model.FinalDemandMeta["Group"] = model.FinalDemandMeta["Group"].str.replace(
+        "Codes|DemandCodes", "", regex = True
+    )
+    model.MarginSectors["Name"] = model.MarginSectors["Name"].str.replace(
+        "Codes", "", regex = True
+    )
+
+def load_io_codes(model):
+	'''Load BEA IO codes in a list based on model config'''
+	io_codes = {}
+	# Get IO sector codes by group
+	io_codes["Commodities"] = get_vector_of_codes(
+		model.specs['BaseIOSchema'],
+		model.specs['BaseIOLevel'],
+		"Commodity"
+		)
+	io_codes["Industries"] = get_vector_of_codes(
+		model.specs['BaseIOSchema'],
+		model.specs['BaseIOLevel'],
+		"Industry"
+		)
+
+	codes = ["ValueAdded", "HouseholdDemand", "InvestmentDemand",
+			"ChangeInventories", "Export", "Import", "GovernmentDemand",
+			"Scrap", "Transportation", "Wholesale", "Retail"]
+	
+	for code in codes:
+		io_codes[f"{code}Codes"] = get_vector_of_codes(
+			model.specs['BaseIOSchema'],
+			model.specs['BaseIOLevel'],
+			code
+		)
+	
+	fd_codes = ["HouseholdDemandCodes", "InvestmentDemandCodes",
+				"ChangeInventoriesCodes", "ExportCodes",
+				"ImportCodes", "GovernmentDemandCodes"]
+
+	io_codes["FinalDemandCodes"] = []
+
+	for code in fd_codes:
+		io_codes["FinalDemandCodes"] += list(io_codes[code])
+	
+	io_codes["FinalDemandCodes"] = pd.DataFrame(io_codes["FinalDemandCodes"])
+	io_codes["InternationalTradeAdjustmentCodes"] = io_codes["ImportCodes"]["Code"].str.replace("F050", "F051")
+	
+	return(io_codes)
 
 def load_national_io_data(model, io_codes):
-    '''
-    #' Prepare economic components of an EEIO form USEEIO model.
-    #' @param model A model object with model specs loaded.
-    #' @param io_codes A list of BEA IO codes.
-    #' @return A list with USEEIO model economic components.
-    '''
-    pass
+    '''Prepare economic components of an EEIO form USEEIO model.'''
+
+    # Load BEA IO and gross output tables
+    bea = load_bea_tables(model.specs, io_codes)
+
+    # Generate domestic Use transaction and final demand
+    domestic_use = generate_domestic_use(merge(bea["UseTransactions"], bea["FinalDemand"], axis=1), model)
+    
+    
     '''
     # Load BEA IO and gross output tables
-    BEA <- loadBEAtables(model$specs, io_codes)
-    # Generate domestic Use transaction and final demand
-    DomesticUse <- generateDomesticUse(cbind(BEA$UseTransactions, BEA$FinalDemand), model)
+    #BEA <- loadBEAtables(model$specs, io_codes)
+    ## Generate domestic Use transaction and final demand
+    #DomesticUse <- generateDomesticUse(cbind(BEA$UseTransactions, BEA$FinalDemand), model)
     BEA$DomesticUseTransactions <- DomesticUse[, io_codes$Industries]
     BEA$DomesticFinalDemand <- DomesticUse[, io_codes$FinalDemandCodes]
     # Generate Import Cost vector

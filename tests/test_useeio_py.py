@@ -1,11 +1,10 @@
 from context import Model
 from pprint import pprint
+import pandas as pd
+import importlib.resources
+import inspect
 
 model = Model('USEEIOv2.0')
+model.load_io_data()
 
-iocodes = model.load_io_codes()
-
-
-
-print(iocodes['ImportCodes'])
-print(iocodes['InternationalTradeAdjustmentCodes'])
+print(model.MarginSectors.head())

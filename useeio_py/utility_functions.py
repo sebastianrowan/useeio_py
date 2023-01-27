@@ -313,6 +313,22 @@ def get_vector_of_codes(io_schema, io_level, col_name):
     return(as.vector(stats::na.omit(SchemaInfo[, c("Code", colName)])[, "Code"]))
     '''
 
+def stack(df_dict, names):
+    newcodes = dict(filter(
+        lambda x: x[0] in names, df_dict.items()
+    ))
+
+    for name in names:
+        newcodes[name]['ind'] = name
+
+    stacked = pd.concat(
+        newcodes.values(),
+        ignore_index = True,
+        axis = 0
+    )
+
+    return(pd.DataFrame(stacked))
+
 def set_tolerance_for_ras(t_r, t_c, relative_diff = None, absolute_diff = None):
     '''
     #' Calculate tolerance for RAS. Takes a target row sum vector and target colsum vector.
