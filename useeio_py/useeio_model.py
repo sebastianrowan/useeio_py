@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import importlib.resources
-import os.path
-import pyarrow.parquet as pq
 import pandas as pd
 import re
 import inspect
@@ -23,7 +22,7 @@ class USEEIOModel:
                         and optional agg/disagg configuration file(s).
                         If None, built-in config files are used.
         '''
-        print("begin model initialization...")
+        logging.info("begin model initialization...")
         self._valid = True
         self._invalid_reason = None
         # Get model specs

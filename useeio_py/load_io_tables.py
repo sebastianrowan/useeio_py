@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 '''Functions for loading input-output tables'''
 
+import logging
 import importlib.resources
 import pandas as pd
 from .utility_functions import get_vector_of_codes, stack
+from .io_functions import generate_domestic_use
 import numpy as np
 
 def load_io_data(model, config_paths = None):
@@ -11,7 +13,7 @@ def load_io_data(model, config_paths = None):
     Prepare economic components of an EEIO form USEEIO model
     '''
     # Declare model IO objects
-    print("Initializing IO tables...")
+    logging.info("Initializing IO tables...")
     # Load model IO meta
     load_io_meta(model)
     io_table_names = [

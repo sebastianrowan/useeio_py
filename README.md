@@ -34,14 +34,16 @@ Version 0 not complete yet.
 View all models with existing config files that can be built using useeio_py
 
 ```python
-import useeio_py.configuration_functions
-see_available_models()
+from useeio_py import configuration_functions
+
+configuration_functions.see_available_models()
 ```
 
 Build a model that is available in useeior (e.g. the [USEEIOv2.0.1-411](inst/extdata/modelspecs/USEEIOv2.0.1-411.yml) model)
 
 ```python
 from useeio_py.useeio_model import USEEIOModel
+
 model = USEEIOModel('USEEIOv2.0.1-411')
 ```
 

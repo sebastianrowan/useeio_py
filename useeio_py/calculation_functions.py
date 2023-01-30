@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import pandas as pd
 import numpy as np
 from pandas.api.types import is_numeric_dtype
@@ -44,14 +45,14 @@ def calculate_EEIO_model(model, perspective, demand = "Production", use_domestic
             # *** I modified the above if-else block to bypass an additional lookup here
             d = model.demand_vectors['vectors'][demand_name]
         else:
-            print(f"{demand} is not a valid demand vector name in model.")
+            logging.error(f"{demand} is not a valid demand vector name in model.")
     else:
         # Assume this is a user-defined demand vector
         #! Need to check that the given demand vector is valid
         if is_demand_vector_valid(demand, L):
             d = format_demand_vector(demand,L)
         else:
-            print("Format of the demand vector is invalid. Cannot calculate result.")
+            logging.error("Format of the demand vector is invalid. Cannot calculate result.")
     
     # Convert demand vector into a matrix
     # R: f <- as.matrix(d)
@@ -60,35 +61,39 @@ def calculate_EEIO_model(model, perspective, demand = "Production", use_domestic
     # Calculate LCI and LCIA in direct or final perspective
     if perspective == "DIRECT":
         # Calculate Direct Perspective LCI (a matrix with direct impacts in form of sector x flows)
-        # print("Calculating Direct Perspective LCI...")
+        logging.info("Calculating Direct Perspective LCI...")
         s = get_scaling_vector(L, f) 
         result['LCI_d'] = calculate_direct_perspective_LCI(model.B, s)
-        # print("Calculating Direct Perspective LCIA...")
+
+        logging.info("Calculating Direct Perspective LCIA...")
         result['LCIA_d'] = calculate_direct_perspective_LCIA(model.D, s)
     elif perspective == "FINAL":
-        # print("Calculating Final Perspective LCI...")
+        logging.info("Calculating Final Perspective LCI...")
         result['LCI_f'] = calculate_final_perspective_LCI(model.M, f) 
-        # print("Calculating Final Perspective LCIA...")
+
+        logging.info("Calculating Final Perspective LCIA...")
         result['LCIA_f'] = calculate_final_perspective_LCIA(model.N, f) 
     elif perspective == "BOTH":
         # Calculate Direct Perspective LCI (a matrix with direct impacts in form of sector x flows)
-        # print("Calculating Direct Perspective LCI...")
+        logging.info("Calculating Direct Perspective LCI...")
         s = get_scaling_vector(L, f)
         result['LCI_d'] = calculate_direct_perspective_LCI(model.B, s)
+
         # Calculate Direct Perspective LCIA (matrix with direct impacts in form of sector x impacts)
-        # print("Calculating Direct Perspective LCIA...")
+        logging.info("Calculating Direct Perspective LCIA...")
         result['LCIA_d'] = calculate_direct_perspective_LCIA(model.D, s)
         
         # Calculate Final Perspective LCI (a matrix with total impacts in form of sector x flows)
-        # print("Calculating Final Perspective LCI...")
+        logging.info("Calculating Final Perspective LCI...")
         result['LCI_f'] = calculate_final_perspective_LCI(model.M, f)
+
         # Calculate Final Perspective LCIA (matrix with total impacts in form of sector x impacts)
-        # print("Calculating Final Perspective LCIA...")
+        logging.info("Calculating Final Perspective LCIA...")
         result['LCIA_f'] = calculate_final_perspective_LCIA(model.N, f)
     else:
-        print(f"{perspective} is not a valid perspective in the model.")
+        logging.error(f"{perspective} is not a valid perspective in the model.")
     
-    # print("Result calculation complete.")
+    logging.info("Result calculation complete.")
     return(result)
 
 
@@ -148,7 +153,7 @@ def calculate_final_perspective_LCI(M, y):
                 Journal of Cleaner Production 158 (August): 308–18. https://doi.org/10.1016/j.jclepro.2017.04.150.
                 SI1, Equation 10.
     '''
-    ## print(f"demand vect for lci_f calc: {y}")
+
     lci_f = np.transpose(np.matmul(M, np.diag(y.iloc[:,0])))
     lci_f.index = M.columns
     
