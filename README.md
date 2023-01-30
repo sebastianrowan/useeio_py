@@ -2,9 +2,9 @@
 
 `useeio_py` is a Python translation of the USEPA's [useeior](https://github.com/USEPA/useeior) R package for building and using [USEEIO models](https://www.epa.gov/land-research/us-environmentally-extended-input-output-useeio-models).
 
-I started this project to incorporate some of the functionality of the original R package into existing Python code for my dissertation research. This is a personal hobby project and I am not affiliated with the EPA. This package is not being developed in coordination with anyone from the EPA, nor has any of this work
+I started this project to incorporate some of the functionality of the original R package into existing Python code for my dissertation research. This is a personal hobby project and I am not affiliated with the EPA. This package is not being developed in coordination with anyone from the EPA, nor has any of this work gone through peer-review.
 
-If this package is ever completed, and you use it in any peer-revied scientific publication, please include a citation for the original `useeior` publication included below. While I would certainly appreciate an acknowledgement for the Python translation, all credit for the research and development of the modelling framework goes to the team at the EPA.
+If this package is ever completed, and you use it in any peer-reviewed scientific publication, please include a citation for the original peer-reviewed `useeior` publication included below. While I would certainly appreciate an acknowledgement for the Python translation, all credit for the research and development of the modelling framework goes to the team at the EPA.
 
 `useeior` citation:
 ```
