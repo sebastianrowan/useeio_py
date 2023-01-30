@@ -13,7 +13,7 @@ def load_io_data(model, config_paths = None):
     # Declare model IO objects
     print("Initializing IO tables...")
     # Load model IO meta
-    load_io_tables.load_io_meta(self)
+    load_io_meta(model)
     io_table_names = [
         "MakeTransactions", "UseTransactions", "DomesticUseTransactions",
         "UseValueAdded", "FinalDemand", "DomesticFinalDemand",
@@ -208,7 +208,7 @@ def load_national_io_data(model, io_codes):
     bea = load_bea_tables(model.specs, io_codes)
 
     # Generate domestic Use transaction and final demand
-    domestic_use = generate_domestic_use(merge(bea["UseTransactions"], bea["FinalDemand"], axis=1), model)
+    domestic_use = generate_domestic_use(pd.merge(bea["UseTransactions"], bea["FinalDemand"], axis=1), model)
     
     
     '''

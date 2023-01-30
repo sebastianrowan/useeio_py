@@ -91,7 +91,7 @@ def is_demand_vector_valid(dv, L):
     '''
     A function to validate a user provided demand vector
 
-    Keyword arguments:
+    Arguments:
     dv: a user provided demand vector
     L:  the L matrix for the given model, used as a reference
 
@@ -105,7 +105,7 @@ def format_demand_vector(dv, L):
     '''
     Format a named demand vector with partial sectors to have all the rows and ordering needed
 
-    Keyword arguments:
+    Arguments:
     dv: a user provided demand vector. See calculateEEIOModel()
     L:  the L matrix for the given model, used as a reference
 

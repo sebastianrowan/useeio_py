@@ -13,7 +13,7 @@ def get_configuration(config_name, config_type, config_paths = None):
     '''
     Gets a stored or user specified model or aggregation/disaggregation configuration file
 
-    Keyword arguments:
+    Arguments:
 
     config_name:    str, name of the configuration file
     config_type:    str, configuration type, can be "model", "disagg", or "agg"

@@ -10,7 +10,7 @@ def calculate_EEIO_model(model, perspective, demand = "Production", use_domestic
     Calculate total emissions/resources (LCI) and total impacts (LCIA) for an EEIO model
     for a given perspective and demand vector.
     
-    Keyword arguments:
+    Arguments:
     model:          A complete EEIO Model: an instance of class Model as defined in useeio_classes.py
     perspective:    Perspective of the model: can be "DIRECT", "FINAL", or "BOTH". (useeior docs say can be "INTERMEDIATE", but function does not handle this option).
     demand:         A demand vector: can be a string specifying the name of a built-in demand vector, e.g. "Production",
@@ -97,7 +97,7 @@ def get_scaling_vector(L, demand):
     Multiply the Leontief inverse L and the demand vector to calculate scaling vector
     that represents production needed to fulfill the demand.
     
-    Keyword arguments:
+    Arguments:
     L:      Leontief inverse.
     demand: Final demand vector
     
@@ -116,7 +116,7 @@ def calculate_direct_perspective_LCI(B, s):
     The direct perspective LCI aligns flows with sectors consumed by direct use.
     Multiply the B matrix and the scaling vector s.
     
-    Keyword arguments:
+    Arguments:
     B:  Marginal impact per unit of the environmental flows.
     s:  Scaling vector.
     
@@ -137,7 +137,7 @@ def calculate_final_perspective_LCI(M, y):
     The final perspective LCI aligns flows with sectors consumed by final users.
     Multiply the M matrix and the diagonal of demand, y.
     
-    Keyword arguments:
+    Arguments:
     M:  a model M matrix, direct + indirect flows per $ output of sector.
     y:  a model demand vector
     
@@ -160,7 +160,7 @@ def calculate_direct_perspective_LCIA(D, s):
     The direct perspective LCIA aligns impacts with sectors consumed by direct use.
     Multiply the D matrix (the product of C matrix and B matrix) and scaling vector s.
     
-    Keyword arguments:
+    Arguments:
     D:  a model D matrix, Direct impact per unit of the environmental flows.
     s:  Scaling vector.
     
@@ -181,7 +181,7 @@ def calculate_final_perspective_LCIA(N, y):
     The final perspective LCIA aligns impacts with sectors consumed by final users.
     Multiply the N matrix and the diagonal of demand, y.
     
-    Keyword arguments:
+    Arguments:
     N: a model N matrix, direct + indirect impact per unit of the environmental flows.
     y:  a model demand vector
     

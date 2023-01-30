@@ -291,7 +291,7 @@ def get_vector_of_codes(io_schema, io_level, col_name):
     '''
     Extract desired columns from SchemaInfo, return vectors with strings of codes.
     
-    Keyword arguments:
+    Arguments:
     io_schema:  A numeric value of either 2012 or 2007 specifying the io schema year.
     iolevel:    Level of detail, can be "Sector", "Summary, "Detail".
     col_name:   A text value specifying desired column name.

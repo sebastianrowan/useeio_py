@@ -14,7 +14,7 @@ def map_list_by_name(sat_table, sat_table_meta):
     '''
     Map resource and emission names in a standardized satellite table to new names by flow name
     
-    Keyword arguments:
+    Arguments:
     sat_table:      A standardized satellite table with resource and emission names from original sources.
     sat_table_meta: Meta data of the satellite table.
 
