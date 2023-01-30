@@ -1,23 +1,12 @@
-# useeior <img src="inst/img/logo.png" align="right" width="240" />
-<!-- badges: start -->
-[![R CI/CD test](https://github.com/USEPA/useeior/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/useeior/actions/workflows/R-CMD-check.yaml)
-[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html)
-[![useeior v1.0.0](http://img.shields.io/badge/useeior%20v1.0.0-10.5281/zenodo.6370101-blue.svg)](https://doi.org/10.5281/zenodo.6370101)
-[![useeior paper](http://img.shields.io/badge/useeior%20paper-10.3390/app12094469-blue.svg)](https://doi.org/10.3390/app12094469)
-<!-- badges: end -->
+# useeio_py
 
-`useeior` is an R package for building and using [USEEIO models](https://www.epa.gov/land-research/us-environmentally-extended-input-output-useeio-models).
+`useeio_py` is a Python translation of the USEPA's [useeior](https://github.com/USEPA/useeior) R package for building and using [USEEIO models](https://www.epa.gov/land-research/us-environmentally-extended-input-output-useeio-models).
 
-The [model object](format_specs/Model.md) is the primary output that is built according to a given [model specification](format_specs/ModelSpecification.md) and optional hybridization specification, e.g. [disaggregation](format_specs/DisaggregationAndAggregationSpecification.md).
-[Model specifications](inst/extdata/modelspecs) and associated hybridization specifications, e.g. [disaggregation](inst/extdata/disaggspecs), for EPA-validated models are included in the package.
+I started this project to incorporate some of the functionality of the original R package into existing Python code for my dissertation research. This is a personal hobby project and I am not affiliated with the EPA. This package is not being developed in coordination with anyone from the EPA, nor has any of this work
 
-`useeior` offers various functions for validating, calculating, visualizing, and writing out models and/or their components.
-`useeior` is a core component of the [USEEIO Modeling Framework](https://github.com/USEPA/useeio) and is in a stable development state.
-Users intending to use the package for production purposes and applications should use [Releases](https://github.com/USEPA/useeior/releases).
-`useeior` v1.0.0 was peer-reviewed internally at USEPA and published at Zenodo.
+If this package is ever completed, and you use it in any peer-revied scientific publication, please include a citation for the original `useeior` publication included below. While I would certainly appreciate an acknowledgement for the Python translation, all credit for the research and development of the modelling framework goes to the team at the EPA.
 
-An peer-reviewed article describing `useeior` was published in the journal Applied Sciences in April 2022.
-If you use `useeior` in a scientific publication, we would appreciate that you cite it using:
+`useeior` citation:
 ```
 @article{li_useeior_2022,
   title   = {useeior: {An} {Open-Source} {R} {Package} for {Building} and {Using} {US} {Environmentally-Extended} {Input-Output} {Models}},
@@ -34,44 +23,27 @@ or
 ```
 Li, M., Ingwersen, W.W., Young, B., Vendries, J. and Birney, C., 2022. useeior: An Open-Source R Package for Building and Using US Environmentally-Extended Input–Output Models. Applied Sciences, 12(9), p.4469.
 ```
-
-See the following sections for installation and basic usage of `useeior`.
-
-See [Wiki](https://github.com/USEPA/useeior/wiki) for advanced uses, details about built-in data and metadata and how to contribute to `useeior`.
-
 ## Installation
 
-```r
-# Install development version from GitHub
-install.packages("devtools")
-devtools::install_github("USEPA/useeior")
-```
-
-```r
-# Install a previously released version (e.g. v1.0.0) from GitHub
-devtools::install_github("USEPA/useeior@v1.0.0")
-```
-
-See [Releases](https://github.com/USEPA/useeior/releases) for all previously realeased versions.
+Version 0 not complete yet.
 
 ## Usage
 
 ### Build Model
 
-View all models with existing config files that can be built using useeior
+View all models with existing config files that can be built using useeio_py
 
-```r
-library("useeior")
-seeAvailableModels()
+```python
+import useeio_py.configuration_functions
+see_available_models()
 ```
 
 Build a model that is available in useeior (e.g. the [USEEIOv2.0.1-411](inst/extdata/modelspecs/USEEIOv2.0.1-411.yml) model)
 
-```r
-model <- buildModel('USEEIOv2.0.1-411')
+```python
+from useeio_py.useeio_model import USEEIOModel
+model = USEEIOModel('USEEIOv2.0.1-411')
 ```
-
-To build a customized model, refer to [Advanced Uses](https://github.com/USEPA/useeior/wiki/Using-useeior#advanced-uses) in Wiki.
 
 This generates a complete USEEIO model with components described in the [Model](format_specs/Model.md#model) table.
 
@@ -79,22 +51,20 @@ This generates a complete USEEIO model with components described in the [Model](
 
 Adjust model results (e.g. `N` matrix) to user-specified price year (e.g. `2018`) and type (producer's or purchaser's).
 
-```r
-N_adj <- adjustResultMatrixPrice("N", 
-                                 currency_year = 2018,
-                                 purchaser_price = TRUE,
-                                 model)
+```python
+from useeio_py import adjust_price
+
+N_adj = adjust_price.adjust_result_matrix_price(model, "N", currency_year = 2018, purchaser_price = True)
 ```
 
 ### Calculate Model LCI and LCIA
 
 Calculate model life cycle inventory (LCI) and life cycle impact assessment (LCIA) results with a user-specified [calculation perspective](format_specs/Calculation.md#calculation-perspectives), [demand vector](format_specs/Model.md#demandvectors) (from `DemandVectors` in the model object, which includes four [default vectors](format_specs/ModelSpecification.md#demand-vector-specifications), or a user-provided vector) and a model [direct requirements matrix](format_specs/Model.md#a).
 
-```r
-result <- calculateEEIOModel(model,
-                             perspective = "DIRECT",
-                             demand = "CompleteProduction",
-                             use_domestic_requirements = FALSE)
+```python
+from useeio_py import calculation_functions
+
+result = calculation_functions.calculate_EEIO_model(model, perspective = "DIRECT", demand = "CompleteProduction", use_domestic_requirements = False)
 ```
 
 This returns a [Calculation Result](format_specs/Calculation.md#calculation-result). 
@@ -102,15 +72,20 @@ This returns a [Calculation Result](format_specs/Calculation.md#calculation-resu
 ### Write Model to File
 
 Write selected model matrices, demand vectors, and metadata as one `.xlsx` file to a given output folder.
-```r
-writeModeltoXLSX(model, outputfolder)
+```python
+from useeio_py import write_model
+
+write_model_to_xlsx(model, outputfolder)
 ```
 
 Write model matrices as `.csv` files to a given output folder.
-```r
-writeModelMatrices(model, to_format = "csv", outputfolder)
+```python
+from useeio_py import write_model
+
+write_model_matrices(model, to_format = "csv", output_folder = "/path/to/output_folder")
 ```
 
+<!-->
 ### Validate Model
 
 Complete model validation checks can be found in [ValidateModel.Rmd](inst/doc/ValidateModel.Rmd).
@@ -229,3 +204,4 @@ A complete list of available functions for calculating, validating, exporting an
 ## Disclaimer
 
 The United States Environmental Protection Agency (EPA) GitHub project code is provided on an "as is" basis and the user assumes responsibility for its use.  EPA has relinquished control of the information and no longer has responsibility to protect the integrity , confidentiality, or availability of the information.  Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by EPA.  The EPA seal and logo shall not be used in any manner to imply endorsement of any commercial product or activity by EPA or the United States Government.
+--->

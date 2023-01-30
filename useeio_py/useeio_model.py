@@ -11,14 +11,14 @@ from .utility_functions import get_vector_of_codes, stack
 from . import load_io_tables, load_satellites, load_demand_vectors
 
 
-class Model:
+class USEEIOModel:
     
     def __init__(self, model_name, config_paths = None):
         '''
         Initialize model with specifications and fundamental crosswalk table.
 
         Arguments:
-        modelname:      Name of the model from a config file.
+        model_name:      Name of the model from a config file.
         configpaths:    str list, paths (including file name) of model configuration file
                         and optional agg/disagg configuration file(s).
                         If None, built-in config files are used.

@@ -46,9 +46,12 @@ def see_available_models():
 
     return: Prints model names
     '''
+    pass
+    '''
     config_files = find_model_configuration_files()
-    model_names = config_files[0:(len(config_files) - 4)]
+    model_names = #TODO: remove ".yml" from end of each string
     print(model_names)
+    '''
 
 def find_model_configuration_files():
     '''
