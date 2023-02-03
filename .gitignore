@@ -19,3 +19,4 @@ pip-delete-this-directory.txt
 .Ruserdata
 work
 inst/doc/**/*.html
+useeior/R/*.R
