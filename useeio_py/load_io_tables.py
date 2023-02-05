@@ -4,7 +4,7 @@
 import logging
 import importlib.resources
 import pandas as pd
-from .utility_functions import get_vector_of_codes, stack
+from . import utility_functions
 from .io_functions import generate_domestic_use
 import numpy as np
 
@@ -22,14 +22,14 @@ def load_io_data(model, config_paths = None):
         "InternationalTradeAdjustment"
     ]
     if model.specs['IODataSource'] == "BEA":
-        io_codes = load_io_codes()
-        for name in io_table_names:
-            setattr(model, name, load_national_io_data(io_codes)[name])
+        io_codes = load_io_codes(model)
+        #for name in io_table_names:
+            #setattr(model, name, load_national_io_data(io_codes)[name]) #TODO: implement load_national_io_data
     '''
-    # Declare model IO objects
-    logging::loginfo("Initializing IO tables...")
-    # Load model IO meta
-    model <- loadIOmeta(model)
+    ## Declare model IO objects
+    #logging::loginfo("Initializing IO tables...")
+    ## Load model IO meta
+    #model <- loadIOmeta(model)
     # Define IO table names
     io_table_names <- c("MakeTransactions", "UseTransactions", "DomesticUseTransactions",
                         "UseValueAdded", "FinalDemand", "DomesticFinalDemand",
@@ -90,6 +90,7 @@ def load_io_data(model, config_paths = None):
     return(model)
     '''
 
+#DONE
 def load_io_meta(model):
     '''Prepare metadata of economic components of an EEIO form USEEIO model'''
     io_codes = load_io_codes(model)
@@ -98,7 +99,7 @@ def load_io_meta(model):
     model.Commodities = pd.merge(
         io_codes['Commodities'],
         pd.read_csv(
-            importlib.resources.files('useeio_py.inst.extdata').joinpath("USEEIO_Commodity_Meta.csv"),
+            utility_functions.get_named_dataset('useeio_py.inst.extdata', "USEEIO_Commodity_Meta.csv"),
             header = 0
         ),
         how = 'left',
@@ -106,7 +107,8 @@ def load_io_meta(model):
     )
             
     model.Industries = pd.read_parquet(
-        importlib.resources.files('useeio_py.data').joinpath(
+        utility_functions.get_named_dataset(
+            'useeio_py.data',
             f"{model.specs['BaseIOLevel']}_IndustryCodeName_{model.specs['BaseIOSchema']}.parquet"
         )
     )
@@ -117,21 +119,26 @@ def load_io_meta(model):
     ]
     model.FinalDemandMeta = pd.merge(
         pd.read_parquet(
-            importlib.resources.files('useeio_py.data').joinpath(
+            utility_functions.get_named_dataset(
+                'useeio_py.data',
                 f"{model.specs['BaseIOLevel']}_FinalDemandCodeName_{model.specs['BaseIOSchema']}.parquet"
             )
+            ##FIX: importlib.resources.files('useeio_py.data').joinpath(
+            #    f"{model.specs['BaseIOLevel']}_FinalDemandCodeName_{model.specs['BaseIOSchema']}.parquet"
+            #)
         ),
-        stack(io_codes, merge_code_names),
+        utility_functions.stack(io_codes, merge_code_names),
         left_on=f"BEA_{model.specs['BaseIOSchema']}_{model.specs['BaseIOLevel']}_FinalDemand_Code",
         right_on="Code"
     )
     model.FinalDemandMeta = model.FinalDemandMeta.drop(columns = 'Code')
     
     if model.specs["IODataSource"] == "BEA":
-        model.InternationalTradeAdjustmentMeta = stack(io_codes, ["InternationalTradeAdjustmentCodes"])
-    model.MarginSectors = stack(io_codes, ["TransportationCodes", "WholesaleCodes", "RetailCodes"])
+        model.InternationalTradeAdjustmentMeta = utility_functions.stack(io_codes, ["InternationalTradeAdjustmentCodes"])
+    model.MarginSectors = utility_functions.stack(io_codes, ["TransportationCodes", "WholesaleCodes", "RetailCodes"])
     model.ValueAddedMeta = pd.read_parquet(
-        importlib.resources.files('useeio_py.data').joinpath(
+        utility_functions.get_named_dataset(
+            'useeio_py.data',
             f"{model.specs['BaseIOLevel']}_ValueAddedCodeName_{model.specs['BaseIOSchema']}.parquet"
         )
     )
@@ -163,16 +170,17 @@ def load_io_meta(model):
         "Codes", "", regex = True
     )
 
+#DONE
 def load_io_codes(model):
 	'''Load BEA IO codes in a list based on model config'''
 	io_codes = {}
 	# Get IO sector codes by group
-	io_codes["Commodities"] = get_vector_of_codes(
+	io_codes["Commodities"] = utility_functions.get_vector_of_codes(
 		model.specs['BaseIOSchema'],
 		model.specs['BaseIOLevel'],
 		"Commodity"
 		)
-	io_codes["Industries"] = get_vector_of_codes(
+	io_codes["Industries"] = utility_functions.get_vector_of_codes(
 		model.specs['BaseIOSchema'],
 		model.specs['BaseIOLevel'],
 		"Industry"
@@ -183,7 +191,7 @@ def load_io_codes(model):
 			"Scrap", "Transportation", "Wholesale", "Retail"]
 	
 	for code in codes:
-		io_codes[f"{code}Codes"] = get_vector_of_codes(
+		io_codes[f"{code}Codes"] = utility_functions.get_vector_of_codes(
 			model.specs['BaseIOSchema'],
 			model.specs['BaseIOLevel'],
 			code
@@ -203,14 +211,15 @@ def load_io_codes(model):
 	
 	return(io_codes)
 
+#TODO
 def load_national_io_data(model, io_codes):
     '''Prepare economic components of an EEIO form USEEIO model.'''
 
     # Load BEA IO and gross output tables
-    bea = load_bea_tables(model.specs, io_codes)
+    bea = load_bea_tables(model.specs, io_codes) #TODO
 
     # Generate domestic Use transaction and final demand
-    domestic_use = generate_domestic_use(pd.merge(bea["UseTransactions"], bea["FinalDemand"], axis=1), model)
+    domestic_use = generate_domestic_use(pd.merge(bea["UseTransactions"], bea["FinalDemand"], axis=1), model) #TODO
     
     
     '''
@@ -247,15 +256,32 @@ def load_bea_tables(specs, io_codes):
     #' @param io_codes A list of BEA IO codes.
     #' @return A list with BEA IO tables
     '''
-    pass
-    '''
-    BEA <- list()
-    # Load pre-saved Make and Use tables
-    Redef <- ifelse(specs$BasewithRedefinitions, "AfterRedef", "BeforeRedef")
-    BEA$Make <- get(paste(specs$BaseIOLevel, "Make", specs$IOYear, Redef, sep = "_"))
-    BEA$Use <-  get(paste(specs$BaseIOLevel, "Use", specs$IOYear, specs$BasePriceType, Redef, sep = "_"))
+    bea = {}
+
+    if specs['BasewithRedefinitions']:
+        redef = "AfterRedef"
+    else:
+        redef = "BeforeRedef"
     
+    bea['Make'] = pd.read_parquet(utility_functions.get_named_dataset(
+        'useeio_py.data',
+        f"{specs['BaseIOLevel']}_Make_{specs['IOYear']}_{redef}.parquet"
+    ))
+
+    bea['Use'] = pd.read_parquet(utility_functions.get_named_dataset(
+        'useeio_py.data',
+        f"{specs['BaseIOLevel']}_Use_{specs['IOYear']}_{specs['BasePriceType']}_{redef}.parquet"
+    ))
+    print('...')
+    print('...')
+    print(bea["Make"])
+    print('...')
+    #bea['MakeTransactions'] = bea["Make"][io_codes['Industries'], io_codes['Commodities']] * 1E6
+
+    return(bea)
     # Separate Make and Use tables into specific IO tables (all values in $)
+    '''
+    ## Separate Make and Use tables into specific IO tables (all values in $)
     BEA$MakeTransactions <- BEA$Make[io_codes$Industries, io_codes$Commodities] * 1E6
     BEA$MakeIndustryOutput <- as.data.frame(rowSums(BEA$MakeTransactions))
     BEA$UseTransactions <- BEA$Use[io_codes$Commodities, io_codes$Industries] * 1E6

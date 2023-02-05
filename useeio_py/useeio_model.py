@@ -49,10 +49,17 @@ class USEEIOModel:
             crosswalk[model_schema] = crosswalk[base_schema]
             self.crosswalk = crosswalk
 
-        load_io_tables.load_io_data(self)  
+        load_io_tables.load_io_data(self)  #CURRENT
         load_satellites.load_and_build_satellite_tables(self)
-        load_demand_vectors(self)
+        load_demand_vectors.load_demand_vectors(self)
         self.construct_EEIO_matrices()
+
+    def get_elements(self):
+        elements = list(filter(
+            lambda x: not (x[0].startswith('_') or inspect.ismethod(x[1])),
+            inspect.getmembers(self)
+        ))
+        return(list(zip(*elements))[0])
 
     def construct_EEIO_matrices(self):
         '''

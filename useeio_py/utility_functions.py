@@ -287,6 +287,10 @@ def map_location_codes_to_names(codes, code_system):
     }
     '''
 
+def get_named_dataset(source, name):
+    file = importlib.resources.files(source).joinpath(name)
+    return(file)
+
 def get_vector_of_codes(io_schema, io_level, col_name):
     '''
     Extract desired columns from SchemaInfo, return vectors with strings of codes.
@@ -299,7 +303,8 @@ def get_vector_of_codes(io_schema, io_level, col_name):
     return:     A vector of codes.
     '''
     schema_info_file_name = f"{io_schema}_{io_level}_Schema_Info.csv"
-    schema_info_file = importlib.resources.files('useeio_py.inst.extdata').joinpath(schema_info_file_name)
+    #schema_info_file = importlib.resources.files('useeio_py.inst.extdata').joinpath(schema_info_file_name)
+    schema_info_file = get_named_dataset('useeio_py.inst.extdata', schema_info_file_name)
     schema_info = pd.read_csv(schema_info_file, header = 0)
     schema_info_out = (schema_info.filter(items = ["Code", col_name])
         .dropna()
