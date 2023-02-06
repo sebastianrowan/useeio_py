@@ -204,9 +204,9 @@ def load_io_codes(model):
 	io_codes["FinalDemandCodes"] = []
 
 	for code in fd_codes:
-		io_codes["FinalDemandCodes"] += list(io_codes[code])
+		io_codes["FinalDemandCodes"] += list(io_codes[code]["Code"])
 	
-	io_codes["FinalDemandCodes"] = pd.DataFrame(io_codes["FinalDemandCodes"])
+	io_codes["FinalDemandCodes"] = pd.DataFrame(io_codes["FinalDemandCodes"], columns=["Code"])
 	io_codes["InternationalTradeAdjustmentCodes"] = io_codes["ImportCodes"]["Code"].str.replace("F050", "F051")
 	
 	return(io_codes)
@@ -263,39 +263,54 @@ def load_bea_tables(specs, io_codes):
     else:
         redef = "BeforeRedef"
     
-    bea['Make'] = pd.read_parquet(utility_functions.get_named_dataset(
-        'useeio_py.data',
-        f"{specs['BaseIOLevel']}_Make_{specs['IOYear']}_{redef}.parquet"
-    ))
+    bea["Make"] = pd.read_parquet(
+        importlib.resources.files('useeio_py.data2').joinpath(
+            f"{specs['BaseIOLevel']}_Make_{specs['IOYear']}_{redef}.parquet"
+        )
+    ).set_index('index')
 
-    bea['Use'] = pd.read_parquet(utility_functions.get_named_dataset(
-        'useeio_py.data',
-        f"{specs['BaseIOLevel']}_Use_{specs['IOYear']}_{specs['BasePriceType']}_{redef}.parquet"
-    ))
-    print('...')
-    print('...')
-    print(bea["Make"])
-    print('...')
-    #bea['MakeTransactions'] = bea["Make"][io_codes['Industries'], io_codes['Commodities']] * 1E6
+    bea["Use"] = pd.read_parquet(
+        importlib.resources.files('useeio_py.data2').joinpath(
+            f"{specs['BaseIOLevel']}_Use_{specs['IOYear']}_{specs['BasePriceType']}_{redef}.parquet"
+        )
+    ).set_index('index')
+
+     # Separate Make and Use tables into specific IO tables (all values in $)
+    bea["MakeTransactions"] = bea["Make"].loc[
+        io_codes['Industries']['Code'],
+        io_codes['Commodities']['Code']
+    ] * 1E6
+
+    bea["MakeIndustryOutput"] = bea["MakeTransactions"].sum(axis=1)
+
+    bea["UseTransactions"] = bea["Use"].loc[
+        io_codes['Commodities']['Code'],
+        io_codes['Industries']['Code']
+    ] * 1E6
+    
+    bea["FinalDemand"] = bea["Use"].loc[
+        io_codes['Commodities']['Code'],
+        io_codes['FinalDemandCodes']['Code']
+    ] * 1E6
+
+    bea["UseValueAdded"] = bea["Use"].loc[
+        io_codes['ValueAddedCodes']['Code'],
+        io_codes['Industries']['Code']
+    ] * 1E6
+
+    bea["UseCommodityOutput"] = pd.concat(
+        [bea['UseTransactions'], bea["FinalDemand"]],
+        axis=1
+    ).sum(axis=1)
+
+    # Replace NA with 0 in IO tables
+    if specs["BaseIOSchema"] == 2007:
+        bea["MakeTransactions"] = bea["MakeTransactions"].fillna(0)
+        bea["UseTransactions"] = bea["UseTransactions"].fillna(0)
+        bea["FinalDemand"] = bea["FinalDemand"].fillna(0)
 
     return(bea)
-    # Separate Make and Use tables into specific IO tables (all values in $)
-    '''
-    ## Separate Make and Use tables into specific IO tables (all values in $)
-    BEA$MakeTransactions <- BEA$Make[io_codes$Industries, io_codes$Commodities] * 1E6
-    BEA$MakeIndustryOutput <- as.data.frame(rowSums(BEA$MakeTransactions))
-    BEA$UseTransactions <- BEA$Use[io_codes$Commodities, io_codes$Industries] * 1E6
-    BEA$FinalDemand <- BEA$Use[io_codes$Commodities, io_codes$FinalDemandCodes] * 1E6
-    BEA$UseValueAdded <- BEA$Use[io_codes$ValueAddedCodes, io_codes$Industries] * 1E6
-    BEA$UseCommodityOutput <- as.data.frame(rowSums(cbind(BEA$UseTransactions, BEA$FinalDemand)))
-    # Replace NA with 0 in IO tables
-    if(specs$BaseIOSchema==2007) {
-        BEA$MakeTransactions[is.na(BEA$MakeTransactions)] <- 0
-        BEA$UseTransactions[is.na(BEA$UseTransactions)] <- 0
-        BEA$FinalDemand[is.na(BEA$FinalDemand)] <- 0
-    }
-    return(BEA)
-    '''
+   
 
 def load_two_region_state_io_tables(model):
     '''
