@@ -4,8 +4,7 @@
 import logging
 import importlib.resources
 import pandas as pd
-from . import utility_functions
-from .io_functions import generate_domestic_use
+from . import utility_functions, io_functions
 import numpy as np
 
 def load_io_data(model, config_paths = None):
@@ -24,7 +23,7 @@ def load_io_data(model, config_paths = None):
     if model.specs['IODataSource'] == "BEA":
         io_codes = load_io_codes(model)
         #for name in io_table_names:
-            #setattr(model, name, load_national_io_data(io_codes)[name]) #TODO: implement load_national_io_data
+            #setattr(model, name, load_national_io_data(io_codes)[name]) 
     '''
     ## Declare model IO objects
     #logging::loginfo("Initializing IO tables...")
@@ -211,43 +210,50 @@ def load_io_codes(model):
 	
 	return(io_codes)
 
-#TODO
+#Done
 def load_national_io_data(model, io_codes):
     '''Prepare economic components of an EEIO form USEEIO model.'''
 
     # Load BEA IO and gross output tables
-    bea = load_bea_tables(model.specs, io_codes) #TODO
+    bea = load_bea_tables(model.specs, io_codes)
 
     # Generate domestic Use transaction and final demand
-    domestic_use = generate_domestic_use(pd.merge(bea["UseTransactions"], bea["FinalDemand"], axis=1), model) #TODO
-    
-    
-    '''
-    # Load BEA IO and gross output tables
-    #BEA <- loadBEAtables(model$specs, io_codes)
-    ## Generate domestic Use transaction and final demand
-    #DomesticUse <- generateDomesticUse(cbind(BEA$UseTransactions, BEA$FinalDemand), model)
-    BEA$DomesticUseTransactions <- DomesticUse[, io_codes$Industries]
-    BEA$DomesticFinalDemand <- DomesticUse[, io_codes$FinalDemandCodes]
+    domestic_use = io_functions.generate_domestic_use(pd.concat([bea["UseTransactions"], bea["FinalDemand"]], axis=1), model)
+    bea['DomesticUseTransactions'] = domestic_use[io_codes['Industries']['Code']]
+    bea['DomesticFinalDemand'] = domestic_use[io_codes['FinalDemandCodes']['Code']]
+
     # Generate Import Cost vector
-    BEA$InternationalTradeAdjustment <- generateInternationalTradeAdjustmentVector(cbind(BEA$UseTransactions, BEA$FinalDemand), model)
+    bea['InternationalTradeAdjustment'] = io_functions.generate_international_trade_adjustment_vector(
+        pd.concat([bea["UseTransactions"], bea["FinalDemand"]], axis=1),
+        model
+    )
     # Modify row and column names to Code_Loc format in all IO tables
-    # Use model$Industries
-    rownames(BEA$MakeTransactions) <- colnames(BEA$UseTransactions) <-
-        colnames(BEA$DomesticUseTransactions) <- colnames(BEA$UseValueAdded) <-
-        model$Industries$Code_Loc
-    # Use model$Commodities
-    colnames(BEA$MakeTransactions) <- rownames(BEA$UseTransactions) <-
-        rownames(BEA$DomesticUseTransactions) <- rownames(BEA$FinalDemand) <-
-        rownames(BEA$DomesticFinalDemand) <- names(BEA$InternationalTradeAdjustment) <-
-        model$Commodities$Code_Loc
+    # Use model.Industries
+    code_loc_ind = model.Industries['Code_Loc']
+    bea['MakeTransactions'] = bea['MakeTransactions'].set_index(code_loc_ind)
+    bea['UseTransactions'].columns = code_loc_ind
+    bea['DomesticUseTransactions'].columns = code_loc_ind
+    bea['UseValueAdded'].columns = code_loc_ind
+    
+    # Use model.Commodities
+    code_loc_com = model.Commodities['Code_Loc']
+    bea['MakeTransactions'].columns = code_loc_com
+    bea['UseTransactions'] = bea['UseTransactions'].set_index(code_loc_com)
+    bea['DomesticUseTransactions'] = bea['DomesticUseTransactions'].set_index(code_loc_com)
+    bea['FinalDemand'] = bea['FinalDemand'].set_index(code_loc_com)
+    bea['DomesticFinalDemand'] = bea['DomesticFinalDemand'].set_index(code_loc_com)
+    bea['InternationalTradeAdjustment'] = bea['InternationalTradeAdjustment'].set_index(code_loc_com)
+    
     # Use model$FinalDemandMeta
-    colnames(BEA$FinalDemand) <- colnames(BEA$DomesticFinalDemand) <-
-        model$FinalDemandMeta$Code_Loc
-    # Use model$ValueAddedMeta
-    rownames(BEA$UseValueAdded) <- model$ValueAddedMeta$Code_Loc
-    return(BEA)
-    '''
+    code_loc_fdm = model.FinalDemandMeta['Code_Loc']
+    bea['FinalDemand'].columns = code_loc_fdm
+    bea['DomesticFinalDemand'].columns = code_loc_fdm
+
+     # Use model$ValueAddedMeta
+    code_loc_vam = model.ValueAddedMeta['Code_Loc']
+    bea['UseValueAdded'] = bea['UseValueAdded'].set_index(code_loc_vam)
+
+    return(bea)
 
 def load_bea_tables(specs, io_codes):
     '''
@@ -311,7 +317,6 @@ def load_bea_tables(specs, io_codes):
 
     return(bea)
    
-
 def load_two_region_state_io_tables(model):
     '''
     #' Load two-region state IO tables in a list based on model config.

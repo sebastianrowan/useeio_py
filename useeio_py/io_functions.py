@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+import logging
+import importlib.resources
+import pandas as pd
+import numpy as np
+from . import utility_functions
 
 '''
 Functions implementing core input-output analysis algorithms
@@ -208,62 +213,79 @@ def calculate_leontif_inverse(A):
     return(L)
     '''
 
-def generate_domestic_use(use, model):
+def generate_domestic_use(use, model): #DONE
     '''
-    #' Generate domestic Use table by adjusting Use table based on Import matrix.
-    #' @param Use, dataframe of a Use table
-    #' @param model, An EEIO model object with model specs and crosswalk table loaded
-    #' @return A Domestic Use table with rows as commodity codes and columns as industry and final demand codes
-    '''
-    pass
-    '''
-    # Load Import matrix
-    if (model$specs$BaseIOLevel!="Sector") {
-        Import <- get(paste(model$specs$BaseIOLevel, "Import",
-                            model$specs$IOYear, "BeforeRedef", sep = "_"))*1E6
-    } else {
-        # Load Summary level Import matrix
-        Import <- get(paste("Summary_Import", model$specs$IOYear, "BeforeRedef", sep = "_"))*1E6
-        # Aggregate Import from Summary to Sector
-        Import <- as.data.frame(aggregateMatrix(as.matrix(Import), "Summary", "Sector", model))
-    }
-    # Subtract Import from Use
-    DomesticUse <- Use - Import[rownames(Use), colnames(Use)]
-    # Adjust Import column in DomesticUse to 0.
-    # Note: the original values in Import column are essentially the International Trade Adjustment
-    # that are reserved and added as an additional column (F050/F05000) in DomesticUse.
-    DomesticUse[, getVectorOfCodes(model$specs$BaseIOSchema, model$specs$BaseIOLevel, "Import")] <- 0
-    return(DomesticUse)
-    '''
+    Generate domestic Use table by adjusting Use table based on Import matrix.
 
-def generate_international_trade_adjustment_vector(use, model):
-    '''
-    #' Generate international trade adjustment vector from Use and Import matrix.
-    #' @param Use, dataframe of a Use table
-    #' @param model, An EEIO model object with model specs and crosswalk table loaded
-    #' @return An international trade adjustment vector with names as commodity codes
-    '''
-    pass
+    Arguments:
+    Use:    dataframe of a Use table
+    model:  An EEIO model object with model specs and crosswalk table loaded
+    
+    return: A Domestic Use table with rows as commodity codes and 
+            columns as industry and final demand codes
     '''
     # Load Import matrix
-    if (model$specs$BaseIOLevel!="Sector") {
-        Import <- get(paste(model$specs$BaseIOLevel, "Import", model$specs$IOYear, "BeforeRedef", sep = "_"))*1E6
-    } else {
-        # Load Summary level Import matrix
-        Import <- get(paste("Summary_Import", model$specs$IOYear, "BeforeRedef", sep = "_"))*1E6
-        # Aggregate Import from Summary to Sector
-        Import <- as.data.frame(aggregateMatrix(as.matrix(Import), "Summary", "Sector", model))
-    }
+    if model.specs["BaseIOLevel"] != "Sector":
+        imp = pd.read_parquet(importlib.resources.files('useeio_py.data2').joinpath(
+            f"{model.specs['BaseIOLevel']}_Import_{model.specs['IOYear']}_BeforeRedef.parquet"
+        )).set_index('index').select_dtypes(include=['number']) * 1E6
+        
+    else:
+        imp = pd.read_parquet(importlib.resources.files('useeio_py.data2').joinpath(
+            f"Summary_Import_{model.specs['IOYear']}_BeforeRedef.parquet"
+        )).set_index('index').select_dtypes(include=['number']) * 1E6
+
+        imp = pd.DataFrame(utility_functions.aggregate_matrix(imp, "Summary", "Sector", model))
+    
+    # subtract import from use
+    domestic_use = use - imp.loc[list(use.index)][list(use.columns)]
+    
+    # adjust import column in domestic_use to 0
+    # Note: the original values in Import column are essentially the International Trade Adjustment
+    #       that are reserved and added as an additional column (F050/F05000) in DomesticUse.
+    cols = utility_functions.get_vector_of_codes(
+        model.specs['BaseIOSchema'],
+        model.specs['BaseIOLevel'],
+        "Import"
+        )['Code']
+    domestic_use[cols] = 0
+    return(domestic_use)
+
+def generate_international_trade_adjustment_vector(use, model): #DONE
+    '''
+    Generate international trade adjustment vector from Use and Import matrix.
+    
+    Arguments:
+    Use:    dataframe of a Use table
+    model:  An EEIO model object with model specs and crosswalk table loaded
+
+    return: An international trade adjustment vector with commodity codes as index
+    '''
+    # Load Import matrix
+    if model.specs["BaseIOLevel"] != "Sector":
+        imp = pd.read_parquet(importlib.resources.files('useeio_py.data2').joinpath(
+            f"{model.specs['BaseIOLevel']}_Import_{model.specs['IOYear']}_BeforeRedef.parquet"
+        )).set_index('index').select_dtypes(include=['number']) * 1E6
+        
+    else:
+        imp = pd.read_parquet(importlib.resources.files('useeio_py.data2').joinpath(
+            f"Summary_Import_{model.specs['IOYear']}_BeforeRedef.parquet"
+        )).set_index('index').select_dtypes(include=['number']) * 1E6
+
+        imp = pd.DataFrame(utility_functions.aggregate_matrix(imp, "Summary", "Sector", model))
     # Define Import code
-    ImportCode <- getVectorOfCodes(model$specs$BaseIOSchema, model$specs$BaseIOLevel, "Import")
+    import_code = utility_functions.get_vector_of_codes(
+        model.specs['BaseIOSchema'],
+        model.specs['BaseIOLevel'],
+        'Import'
+    )['Code']
     # Calculate InternationalTradeAdjustment
     # In the Import matrix, the imports column is in domestic (US) port value.
     # But in the Use table, it is in foreign port value.
     # domestic port value = foreign port value + value of all transportation and insurance services to import + customs duties
     # See documentation of the Import matrix (https://apps.bea.gov/industry/xls/io-annual/ImportMatrices_Before_Redefinitions_DET_2007_2012.xlsx)
-    # So, InternationalTradeAdjustment <- Use$Imports - Import$Imports
+    # So, InternationalTradeAdjustment = Use$Imports - Import$Imports
     # InternationalTradeAdjustment is essentially 'value of all transportation and insurance services to import' and 'customs duties'
-    InternationalTradeAdjustment <- Use[, ImportCode] - Import[rownames(Use), ImportCode]
-    names(InternationalTradeAdjustment) <- rownames(Use)
-    return(InternationalTradeAdjustment)
-    '''
+    
+    intl_trade_adj = use[import_code] - imp.loc[list(use.index)][import_code]
+    return(intl_trade_adj)

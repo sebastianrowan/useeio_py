@@ -37,28 +37,53 @@ def join_strings_with_slashes(s):
 
 def aggregate_matrix(matrix, from_level, to_level, model):
     '''
-    #' Aggregate matrix by rows then by columns
-    #'
-    #' @param matrix      A matrix
-    #' @param from_level  The level of BEA code this matrix starts at
-    #' @param to_level    The level of BEA code this matrix will be aggregated to
-    #' @param model       An EEIO model object with model specs and crosswalk table loaded
-    #' @return An aggregated matrix
-    '''
-    pass
+    Aggregate matrix by rows then by columns
+    
+    Arguments:
+    matrix:     a dataframe
+    from_level: The level of BEA code the matrix starts at
+    to_level:   The level of BEA code the matrix will be aggregated to
+    model:      An EEIO model object with model specs and crosswalk table loaded
+
+    return:     An aggregated matrix
     '''
     # Determine the columns within MasterCrosswalk that will be used in aggregation
-    from_code <- paste0("BEA_", from_level)
-    to_code <- paste0("BEA_", to_level)
+    from_code = f"BEA_{from_level}"
+    to_code = f"BEA_{to_level}"
     # Aggregate by rows
-    value_columns_1 <- colnames(matrix)
-    df_fromlevel <- merge(matrix, unique(model$crosswalk[, c(from_code, to_code)]),
-                            by.x = 0, by.y = from_code)
-    df_fromlevel_agg <- stats::aggregate(df_fromlevel[, value_columns_1],
-                                        by = list(df_fromlevel[, to_code]), sum)
-    rownames(df_fromlevel_agg) <- df_fromlevel_agg[, 1]
-    df_fromlevel_agg[, 1] <- NULL
+    value_columns_1 = list(matrix.columns)
+    df_fromlevel = pd.merge(
+        matrix,
+        model.crosswalk[[from_code,to_code]].drop_duplicates(),
+        how='left',
+        left_index=True,
+        right_on=from_code
+    )
+    df_fromlevel_agg = df_fromlevel.groupby(to_code)[value_columns_1].agg('sum')
     # aggregate by columns
+    value_columns_2 = list(df_fromlevel_agg.index)
+    df_fromlevel_agg = pd.merge(
+        np.transpose(df_fromlevel_agg),
+        model.crosswalk[[from_code,to_code]].drop_duplicates(),
+        how='left',
+        left_index=True,
+        right_on=from_code
+    )
+    matrix_fromlevel_agg = np.transpose(df_fromlevel_agg.groupby(to_code)[value_columns_2].agg('sum'))
+    return(matrix_fromlevel_agg)
+    '''
+    # Determine the columns within MasterCrosswalk that will be used in aggregation
+    #from_code <- paste0("BEA_", from_level)
+    #to_code <- paste0("BEA_", to_level)
+    ## Aggregate by rows
+    #value_columns_1 <- colnames(matrix)
+    #df_fromlevel <- merge(matrix, unique(model$crosswalk[, c(from_code, to_code)]),
+    #                        by.x = 0, by.y = from_code)
+    #df_fromlevel_agg <- stats::aggregate(df_fromlevel[, value_columns_1],
+    #                                    by = list(df_fromlevel[, to_code]), sum)
+    #rownames(df_fromlevel_agg) <- df_fromlevel_agg[, 1]
+    #df_fromlevel_agg[, 1] <- NULL
+    ## aggregate by columns
     value_columns_2 <- rownames(df_fromlevel_agg)
     df_fromlevel_agg <- merge(t(df_fromlevel_agg),
                                 unique(model$crosswalk[, c(from_code, to_code)]),
