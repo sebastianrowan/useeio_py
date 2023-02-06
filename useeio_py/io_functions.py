@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
+'''
+Functions implementing core input-output analysis algorithms
+'''
 import logging
 import importlib.resources
 import pandas as pd
 import numpy as np
-from . import utility_functions
+from . import (utility_functions)
 
-'''
-Functions implementing core input-output analysis algorithms
-'''
-
+#TODO
 def adjust_output_by_cpi(output_year, reference_year, location_acronym, is_ro_us, model, output_type):
     '''
     #' Adjust Industry output based on CPI.
@@ -39,14 +39,18 @@ def adjust_output_by_cpi(output_year, reference_year, location_acronym, is_ro_us
     return(AdjustedOutput)
     '''
 
+#TODO
 def normalize_io_transactions(io_transactions_df, io_output_df):
     '''
-    #' Derive IO coefficients
-    #' @param IO_transactions_df IO transactions of the model in dataframe format.
-    #' @param IO_output_df Output of the model in dataframe format.
-    #' @return A matrix.
+    Derive IO coefficients
+
+    Arguments:
+    IO_transactions_df: IO transactions of the model in dataframe format.
+    param IO_output_df: Output of the model in dataframe format.
+    
+    return: A matrix.
     '''
-    pass
+    Z = io_transactions_df
     '''
     Z <- as.matrix(IO_transactions_df)
     x <- unname(unlist(IO_output_df))
@@ -56,6 +60,7 @@ def normalize_io_transactions(io_transactions_df, io_output_df):
     return(A)
     '''
 
+#TODO
 def generate_direct_requirements_from_use(model, domestic):
     '''
     #' Generate Direct Requirements matrix from Use table.
@@ -74,20 +79,22 @@ def generate_direct_requirements_from_use(model, domestic):
     return(B)
     '''
 
-def generate_market_shares_from_make(model):
+#TODO: Test implementation
+def generate_market_shares_from_make(model): 
     '''
-    #' Generate Market Shares matrix from Make table.
-    #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
-    #' @return Market Shares matrix of the model.
-    '''
-    pass
+    Generate Market Shares matrix from Make table.
+    
+    Argument:
+    model:  A complete EEIO model: a list with USEEIO model components and attributes.
+    
+    return: Market Shares matrix of the model.
     '''
     # Generate market shares matrix (industry x commodity) from Make, see Miller and Blair section 5.3.1
-    D <- normalizeIOTransactions(model$MakeTransactions, model$CommodityOutput) # D = V %*% solve(q_hat)
-    # Put in code here for adjusting marketshares to remove scrap
+    D = normalize_io_transactions(model.MakeTransactions, model.CommodityOutput) # D = V %*% solve(q_hat)
+    # useeior comment: Put in code here for adjusting marketshares to remove scrap
     return(D)
-    '''
 
+#TODO
 def generate_commodity_mix_matrix(model):
     '''
     #' Generate Commodity Mix matrix.
@@ -108,6 +115,7 @@ def generate_commodity_mix_matrix(model):
     return(C)
     '''
 
+#TODO
 def transform_industry_output_to_commodity_output_for_year(year, model):
     '''
     #' Generate Commodity output by transforming Industry output using Commodity Mix matrix.
@@ -125,6 +133,7 @@ def transform_industry_output_to_commodity_output_for_year(year, model):
     return(CommodityOutput)
     '''
 
+#TODO
 def transform_industry_cpi_to_commodity_cpi_for_year(year, model):
     '''
     #' Generate Commodity CPI by transforming Industry CPI using Commodity Mix matrix.
@@ -154,6 +163,7 @@ def transform_industry_cpi_to_commodity_cpi_for_year(year, model):
     return(CommodityCPI)
     '''
 
+#TODO
 def transform_direct_requirements_with_market_shares(B, D, model):
     '''
     #' Transform Direct Requirements matrix with Market Shares matrix, works for both commodity-by-commodity and industry-by-industry model types.
@@ -184,22 +194,24 @@ def transform_direct_requirements_with_market_shares(B, D, model):
     return(A)
     '''
 
-def transform_final_demand_with_market_shares(fdf, model):
+#TODO: test implementation
+def transform_final_demand_with_market_shares(fdf, model): 
     '''
-    #' Transform Final Demand (commodity x sector) with Market Shares matrix
-    #' to Final Demand (industry x sector)
-    #' @param Fdf Final Demand data.frame.
-    #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
-    #' @return Final Demand (industry x sector) data.frame
-    '''
-    pass
-    '''
-    D <- generateMarketSharesfromMake(model)
-    # See Miller and Blair section 5.3.7 (pg 197)
-    Fmatrix <- D %*% as.matrix(Fdf)
-    return(as.data.frame(Fmatrix))
-    '''
+    Transform Final Demand (commodity x sector) with Market Shares matrix
+    to Final Demand (industry x sector)
 
+    Arguments:
+    Fdf:    Final Demand dataFrame.
+    model:  A complete EEIO model: a list with USEEIO model components and attributes.
+
+    return: Final Demand (industry x sector) dataFrame
+    '''
+    D = generate_market_shares_from_make(model)
+    # See Miller and Blair section 5.3.7 (pg 197)
+    Fmatrix = np.matmul(D, fdf)
+    return(pd.DataFrame(Fmatrix))
+
+#TODO
 def calculate_leontif_inverse(A):
     '''
     #' Calculate Leontief inverse from direct requirements matrix.
@@ -213,7 +225,8 @@ def calculate_leontif_inverse(A):
     return(L)
     '''
 
-def generate_domestic_use(use, model): #DONE
+#DONE
+def generate_domestic_use(use, model): 
     '''
     Generate domestic Use table by adjusting Use table based on Import matrix.
 
@@ -251,7 +264,8 @@ def generate_domestic_use(use, model): #DONE
     domestic_use[cols] = 0
     return(domestic_use)
 
-def generate_international_trade_adjustment_vector(use, model): #DONE
+#DONE
+def generate_international_trade_adjustment_vector(use, model):
     '''
     Generate international trade adjustment vector from Use and Import matrix.
     

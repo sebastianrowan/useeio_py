@@ -4,9 +4,14 @@
 import logging
 import importlib.resources
 import pandas as pd
-from . import utility_functions, io_functions
+from . import (
+    utility_functions, io_functions, load_margins, aggregate_functions, disaggregate_functions,
+    hybridization_functions, load_go_and_cpi, stateior_functions
+)
 import numpy as np
+import re
 
+#TODO: Test implementation
 def load_io_data(model, config_paths = None):
     '''
     Prepare economic components of an EEIO form USEEIO model
@@ -15,80 +20,76 @@ def load_io_data(model, config_paths = None):
     logging.info("Initializing IO tables...")
     # Load model IO meta
     load_io_meta(model)
+    # Define IO table names
     io_table_names = [
         "MakeTransactions", "UseTransactions", "DomesticUseTransactions",
         "UseValueAdded", "FinalDemand", "DomesticFinalDemand",
         "InternationalTradeAdjustment"
     ]
+    # Load IO data
     if model.specs['IODataSource'] == "BEA":
         io_codes = load_io_codes(model)
-        #for name in io_table_names:
-            #setattr(model, name, load_national_io_data(io_codes)[name]) 
-    '''
-    ## Declare model IO objects
-    #logging::loginfo("Initializing IO tables...")
-    ## Load model IO meta
-    #model <- loadIOmeta(model)
-    # Define IO table names
-    io_table_names <- c("MakeTransactions", "UseTransactions", "DomesticUseTransactions",
-                        "UseValueAdded", "FinalDemand", "DomesticFinalDemand",
-                        "InternationalTradeAdjustment")
-    # Load IO data
-    if (model$specs$IODataSource=="BEA") {
-        io_codes <- loadIOcodes(model$specs)
-        model[io_table_names] <- loadNationalIOData(model, io_codes)[io_table_names]
-    } else if (model$specs$IODataSource=="stateior") {
-        model[io_table_names] <- loadTwoRegionStateIOtables(model)[io_table_names]
-    }
-    
+        for name in io_table_names:
+            setattr(model, name, load_national_io_data(model, io_codes)[name]) 
+    elif model.specs['IODataSource'] == "stateior":
+        setattr(model, name, load_two_region_state_io_tables(model, io_codes)[name])
+
     # Add Industry and Commodity Output
-    model <- loadCommodityandIndustryOutput(model)
-    
+    load_commodity_and_industry_output(model)
+
     # Transform model FinalDemand and DomesticFinalDemand to by-industry form
-    if (model$specs$CommodityorIndustryType=="Industry") {
+    if model.specs['CommodityorIndustryType']=='Industry':
         # Keep the orignal FinalDemand (in by-commodity form)
-        model$FinalDemandbyCommodity <- model$FinalDemand
-        model$DomesticFinalDemandbyCommodity <- model$DomesticFinalDemand
-        model$InternationalTradeAdjustmentbyCommodity <- model$InternationalTradeAdjustment
-        model$FinalDemand <- transformFinalDemandwithMarketShares(model$FinalDemand, model)
-        model$DomesticFinalDemand <- transformFinalDemandwithMarketShares(model$DomesticFinalDemand, model)
-        model$InternationalTradeAdjustment <- unlist(transformFinalDemandwithMarketShares(model$InternationalTradeAdjustment, model))
-        names(model$InternationalTradeAdjustment) <- model$Industries$Code_Loc
-    }
-    
-    # Add Margins table
-    model$Margins <- getMarginsTable(model)
-    
+        model.FinalDemandbyCommodity = model.FinalDemand
+        model.DomesticFinalDemandbyCommodity = model.DomesticFinalDemand
+        model.InternationalTradeAdjustmentbyCommodity = model.InternationalTradeAdjustment
+        model.FinalDemand = io_functions.transform_final_demand_with_market_shares(
+            model.FinalDemand, model
+        ) #TODO
+        model.DomesticFinalDemand = io_functions.transform_final_demand_with_market_shares(
+            model.DomesticFinalDemand, model
+        )
+        model.InternationalTradeAdjustment = unlist(io_functions.transform_final_demand_with_market_shares(
+            model.InternationalTradeAdjustment, model
+        )) # unlist is R function. not sure if it will be necessary to translate
+        # will depend on output of transform_final_demand_with_market_shares() function
+        model.InternationalTradeAdjustment = model.InternationalTradeAdjustment.set_index(
+            model.Industries['Code_Loc']
+        )
+
+    # Add Margins Table
+    model.Margins = load_margins.get_margins_table(model) #TODO
+
     # Add Chain Price Index (CPI) to model
-    model$MultiYearIndustryCPI <- loadChainPriceIndexTable(model$specs)[model$Industries$Code, ]
-    rownames(model$MultiYearIndustryCPI) <- model$Industries$Code_Loc
+    model.MultiYearIndustryCPI = load_go_and_cpi.load_chain_price_index_table(model.specs).loc(model.Industries['Code']) #TODO
+    model.MultiYearIndustryCPI = model.MultiYearIndustryCPI.set_index(model.Industries['Code_Loc'])
+    
     # Transform industry CPI to commodity CPI
-    model$MultiYearCommodityCPI <- as.data.frame(model$Commodities, row.names = model$Commodities$Code_Loc)[, FALSE]
-    for (year_col in colnames(model$MultiYearIndustryCPI)) {
-        model$MultiYearCommodityCPI[, year_col] <- transformIndustryCPItoCommodityCPIforYear(as.numeric(year_col), model)
-    }
+    #TODO: Check this implementation. R Code used a [, FALSE] selection to eliminate all columns here. Not sure how this translates
+    model.MultiYearCommodityCPI = model.Commodities.set_index(model.Commodities['Code_Loc'])
+
+    for year_col in model.MultiYearIndustryCPI.columns:
+        model.MultiYearCommodityCPI[year_col] = io_functions.transform_industry_cpi_to_commodity_cpi_for_year(
+            int(year_col),
+            model
+        ) #TODO
     
     # Check for aggregation
-    if(!is.null(model$specs$AggregationSpecs)){
-        model <- getAggregationSpecs(model, configpaths)
-        model <- aggregateModel(model)
-    }
-    
-    # Check for disaggregation
-    if(!is.null(model$specs$DisaggregationSpecs)){
-        model <- getDisaggregationSpecs(model, configpaths)
-        model <- disaggregateModel(model)
-    }
-    
-    # Check for hybridization
-    if(model$specs$ModelType == "EEIO-IH"){
-        model <- getHybridizationSpecs(model, configpaths)
-        model <- getHybridizationFiles(model, configpaths)
-    }
-        
-    return(model)
-    '''
+    if model.specs['AggregationSpecs'] is not None:
+        aggregate_functions.get_aggregation_specs(model, config_paths) #TODO
+        aggregate_functions.aggregate_model(model) #TODO
 
+
+    # Check for disaggregation
+    if model.specs['DisaggregationSpecs'] is not None:
+        disaggregate_functions.get_disaggregation_specs(model, config_paths) #TODO
+        disaggregate_functions.disaggregate_model(model) #TODO
+
+    # Check for hybridization
+    if model.specs['ModelType'] == "EEIO-IH":
+        hybridization_functions.get_hybridization_specs(model, config_paths) #TODO
+        hybridization_functions.get_hybridization_files(model, config_paths) #TODO
+    
 #DONE
 def load_io_meta(model):
     '''Prepare metadata of economic components of an EEIO form USEEIO model'''
@@ -210,7 +211,7 @@ def load_io_codes(model):
 	
 	return(io_codes)
 
-#Done
+#DONE
 def load_national_io_data(model, io_codes):
     '''Prepare economic components of an EEIO form USEEIO model.'''
 
@@ -255,6 +256,7 @@ def load_national_io_data(model, io_codes):
 
     return(bea)
 
+#DONE
 def load_bea_tables(specs, io_codes):
     '''
     #' Load BEA IO tables in a list based on model config and io_codes.
@@ -316,81 +318,84 @@ def load_bea_tables(specs, io_codes):
         bea["FinalDemand"] = bea["FinalDemand"].fillna(0)
 
     return(bea)
-   
+
+#TODO: Test implementation
 def load_two_region_state_io_tables(model):
     '''
     #' Load two-region state IO tables in a list based on model config.
     #' @param model An EEIO form USEEIO model object with model specs and IO meta data loaded.
     #' @return A list with state IO tables.
     '''
-    pass
-    '''
-    StateIO <- list()
+    state_io = {}
     # Load IO tables from stateior
-    StateIO$MakeTransactions <- getTwoRegionIOData(model, "Make")
-    StateIO$UseTransactions <- getTwoRegionIOData(model, "UseTransactions")
-    StateIO$FinalDemand <- getTwoRegionIOData(model, "FinalDemand")
-    StateIO$DomesticUseTransactions <- getTwoRegionIOData(model, "DomesticUseTransactions")
-    StateIO$DomesticFinalDemand <- getTwoRegionIOData(model, "DomesticFinalDemand")
-    StateIO$UseValueAdded <- getTwoRegionIOData(model, "ValueAdded")
-    StateIO$InternationalTradeAdjustment <- getTwoRegionIOData(model, "InternationalTradeAdjustment")
-    return(StateIO)
-    '''
+    state_io['MakeTransactions'] = stateior_functions.get_two_region_io_data(model, "Make")
+    state_io['UseTransactions'] = stateior_functions.get_two_region_io_data(model, "UseTransactions")
+    state_io['FinalDemand'] = stateior_functions.get_two_region_io_data(model, "FinalDemand")
+    state_io['DomesticUseTransactions'] = stateior_functions.get_two_region_io_data(model, "DomesticUseTransactions")
+    state_io['DomesticFinalDemand'] = stateior_functions.get_two_region_io_data(model, "DomesticFinalDemand")
+    state_io['UseValueAdded'] = stateior_functions.get_two_region_io_data(model, "UseValueAdded")
+    state_io['InternationalTradeAdjustment'] = stateior_functions.get_two_region_io_data(model, "InternationalTradeAdjustment")
+    return(state_io)
 
+#TODO: Test implementation
 def load_commodity_and_industry_output(model):
     '''
-    #' Prepare commodity and industry output of an EEIO form USEEIO model.
-    #' @param model A model object with model specs and fundamental IO data loaded.
-    #' @return A list with USEEIO model economic components.
-    '''
-    pass
-    '''
-    if (model$specs$IODataSource=="BEA") {
-        # Calculate industry and commodity output
-        model <- calculateIndustryCommodityOutput(model)
-        # Load multi-year industry output
-        model$MultiYearIndustryOutput <- loadNationalGrossOutputTable(model$specs)[model$Industries$Code, ]
-        rownames(model$MultiYearIndustryOutput) <- model$Industries$Code_Loc
-        model$MultiYearIndustryOutput[, as.character(model$specs$IOYear)] <- model$IndustryOutput
-        # Transform multi-year industry output to commodity output
-        model$MultiYearCommodityOutput <- as.data.frame(model$CommodityOutput)[, FALSE]
-        for (year_col in colnames(model$MultiYearIndustryOutput)) {
-        model$MultiYearCommodityOutput[, year_col] <- transformIndustryOutputtoCommodityOutputforYear(as.numeric(year_col), model)
-        }
-        model$MultiYearCommodityOutput[, as.character(model$specs$IOYear)] <- model$CommodityOutput
-    } else if (model$specs$IODataSource=="stateior") {
-        # Define state, year and iolevel
-        if (!"US-DC"%in%model$specs$ModelRegionAcronyms) {
-        state <- state.name[state.abb==gsub(".*-", "", model$specs$ModelRegionAcronyms[1])]
-        } else {
-        state <- "District of Columbia"
-        }
-        # Load industry and commodity output
-        model$IndustryOutput <- getTwoRegionIOData(model, "IndustryOutput")
-        model$CommodityOutput <- getTwoRegionIOData(model, "CommodityOutput")
-        # Load multi-year industry and commodity output
-        years <- as.character(2012:2017)
-        tmpmodel <- model
-        model$MultiYearIndustryOutput <- as.data.frame(model$IndustryOutput)[, FALSE]
-        model$MultiYearCommodityOutput <- as.data.frame(model$CommodityOutput)[, FALSE]
-        for (year in years) {
-        tmpmodel$specs$IOYear <- year
-        model$MultiYearIndustryOutput[, year] <- getTwoRegionIOData(tmpmodel, "IndustryOutput")
-        model$MultiYearCommodityOutput[, year] <- getTwoRegionIOData(tmpmodel, "CommodityOutput")
-        }
-    }
-    return(model)
-    '''
+    Prepare commodity and industry output of an EEIO form USEEIO model.
+    
+    Argument:
+    model:  A model object with model specs and fundamental IO data loaded.
 
+    return: None
+    '''
+    if model.specs["IODataSource"] == "BEA":
+        # Calculate industry and commodity output
+        calculate_industry_commodity_output(model) #TODO
+        # Load multi-year industry output
+        model.MultiYearIndustryOutput = load_go_and_cpi.load_national_gross_output_table(model.specs)[model.Industries['Code']]
+        model.MultiYearIndustryOutput = model.MultiYearIndustryOutput.set_index(model.Industries['Code_Loc'])
+        model.MultiYearIndustryOutput[str(model.specs['IOYear'])] = model.IndustryOutput.copy()
+        # Transform multi-year industry output to commodity output
+        #TODO: Check this implementation. R Code used a [, FALSE] selection to eliminate all columns here. 
+        # Not sure how this translates
+        model.MultiYearCommodityOutput = model.CommodityOutput.copy()
+
+        for year_col in model.MultiYearIndustryOutput.columns:
+            model.MultiYearCommodityOutput[year_col] = io_functions.transform_industry_output_to_commodity_output_for_year(
+                int(year_col),
+                model
+            )
+        model.MultiYearCommodityOutput[str(model.specs['IOYear'])] = model.CommodityOutput.copy()
+    elif model.specs['IODataSource'] == 'stateior':
+        # Define state, year and iolevel
+        if "US-DC" not in model.specs['ModelRegionAcronyms']:
+            state_abb = re.sub(".*-", "", model.specs['ModelRegionAcronyms'][0])
+            state = utility_functions.get_state_name_from_abb(state_abb)
+        else:
+            state = "District of Columbia"
+        # Load industry and commodity output
+        model.IndustryOutput =  stateior_functions.get_two_region_io_data(model, "IndustryOutput")
+        model.CommodityOutput = stateior_functions.get_two_region_io_data(model, "CommodityOutput")
+        # Load multi-year industry and commodity output
+        years = range(2012, 2018)
+        import copy
+        tmp_model = copy.deepcopy(model)
+        model.MultiYearIndustryOutput = model.IndustryOutput #[, FALSE]
+        model.MultiYearCommodityOutput = model.CommodityOutput #[, FALSE]
+
+        for year in years:
+            tmp_model.specs['IOYear'] = year
+            model.MultiYearIndustryOutput[str(year)] = stateior_functions.get_two_region_io_data(tmp_model, "IndustryOutput")
+            model.MultiYearCommodityOutput[str(year)] = stateior_functions.get_two_region_io_data(tmp_model, "CommodityOutput")
+
+#TODO: Test implementation
 def calculate_industry_commodity_output(model):
     '''
-    #' Calculate industry and commodity output vectors from model components.
-    #' @param model An EEIO model object with model specs and IO tables loaded
-    #' @return An EEIO model with industry and commodity output added
+    Calculate industry and commodity output vectors from model components.
+    
+    Argument:
+    model:  An EEIO model object with model specs and IO tables loaded
+    
+    return: None
     '''
-    pass
-    '''
-    model$IndustryOutput <- colSums(model$UseTransactions) + colSums(model$UseValueAdded)
-    model$CommodityOutput <- rowSums(model$UseTransactions) + rowSums(model$FinalDemand)
-    return(model)
-    '''
+    model.IndustryOutput = model.UseTransactions.sum(axis=0) + model.UseValueAdded.sum(axis=0)
+    model.CommodityOutput = model.UseTransactions.sum(axis=1) + model.FinalDemand.sum(axis=1)
