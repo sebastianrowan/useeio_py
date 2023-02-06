@@ -39,7 +39,7 @@ from useeio_py import configuration_functions
 configuration_functions.see_available_models()
 ```
 
-Build a model that is available in useeior (e.g. the [USEEIOv2.0.1-411](inst/extdata/modelspecs/USEEIOv2.0.1-411.yml) model)
+Build a model that is available in useeior (e.g. the [USEEIOv2.0.1-411](useeio_py/inst/extdata/modelspecs/USEEIOv2.0.1-411.yml) model)
 
 ```python
 from useeio_py.useeio_model import USEEIOModel
@@ -47,7 +47,7 @@ from useeio_py.useeio_model import USEEIOModel
 model = USEEIOModel('USEEIOv2.0.1-411')
 ```
 
-This generates a complete USEEIO model with components described in the [Model](format_specs/Model.md#model) table.
+This generates a complete USEEIO model with components described in the [Model](useeio_py/format_specs/Model.md#model) table.
 
 ### Adjust Price Year and Type of Model Results
 
@@ -61,7 +61,7 @@ N_adj = adjust_price.adjust_result_matrix_price(model, "N", currency_year = 2018
 
 ### Calculate Model LCI and LCIA
 
-Calculate model life cycle inventory (LCI) and life cycle impact assessment (LCIA) results with a user-specified [calculation perspective](format_specs/Calculation.md#calculation-perspectives), [demand vector](format_specs/Model.md#demandvectors) (from `DemandVectors` in the model object, which includes four [default vectors](format_specs/ModelSpecification.md#demand-vector-specifications), or a user-provided vector) and a model [direct requirements matrix](format_specs/Model.md#a).
+Calculate model life cycle inventory (LCI) and life cycle impact assessment (LCIA) results with a user-specified [calculation perspective](useeio_py/format_specs/Calculation.md#calculation-perspectives), [demand vector](format_specs/Model.md#demandvectors) (from `DemandVectors` in the model object, which includes four [default vectors](useeio_py/format_specs/ModelSpecification.md#demand-vector-specifications), or a user-provided vector) and a model [direct requirements matrix](useeio_py/format_specs/Model.md#a).
 
 ```python
 from useeio_py import calculation_functions
@@ -69,7 +69,7 @@ from useeio_py import calculation_functions
 result = calculation_functions.calculate_EEIO_model(model, perspective = "DIRECT", demand = "CompleteProduction", use_domestic_requirements = False)
 ```
 
-This returns a [Calculation Result](format_specs/Calculation.md#calculation-result). 
+This returns a [Calculation Result](useeio_py/format_specs/Calculation.md#calculation-result). 
 
 ### Write Model to File
 
