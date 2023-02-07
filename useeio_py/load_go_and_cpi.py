@@ -3,13 +3,18 @@
 
 import pandas as pd
 import numpy as np
+import logging
+import importlib.resources
 
 
 def load_national_gross_output_table(specs):
     '''
-    #' Load US Gross Output table based on model specifications.
-    #' @param specs Specifications of the model.
-    #' @return A data.frame of US Gross Output.
+    Load US Gross Output table based on model specifications.
+    
+    Argument:
+    specs:  Specifications of the model.
+    
+    return: A data.frame of US Gross Output.
     '''
     pass
     '''
@@ -19,13 +24,18 @@ def load_national_gross_output_table(specs):
     return(GrossOutput)
     '''
 
+#TODO: test implementation
 def load_chain_price_index_table(specs):
     '''
     #' Load Chain Price Index table based on model specifications.
     #' @param specs Specifications of the model.
     #' @return A data.frame of Chain Price Index.
     '''
-    pass
+    logging.info("Initializing Chain Price Index tables...")
+    chain_price_index = pd.read_parquet(importlib.resources.files('useeio_py.data2').joinpath(
+        f"{specs['BaseIOLevel']}_CPI_IO.parquet"
+    ))
+    return(chain_price_index)
     '''
     logging::loginfo("Initializing Chain Price Index tables...")
     ChainPriceIndex <- get(paste0(specs$BaseIOLevel, "_CPI_IO"))

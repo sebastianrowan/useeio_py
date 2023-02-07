@@ -58,10 +58,10 @@ def load_io_data(model, config_paths = None):
         )
 
     # Add Margins Table
-    model.Margins = load_margins.get_margins_table(model) #TODO
+    model.Margins = load_margins.get_margins_table(model)
 
     # Add Chain Price Index (CPI) to model
-    model.MultiYearIndustryCPI = load_go_and_cpi.load_chain_price_index_table(model.specs).loc(model.Industries['Code']) #TODO
+    model.MultiYearIndustryCPI = load_go_and_cpi.load_chain_price_index_table(model.specs).loc(model.Industries['Code'])
     model.MultiYearIndustryCPI = model.MultiYearIndustryCPI.set_index(model.Industries['Code_Loc'])
     
     # Transform industry CPI to commodity CPI
