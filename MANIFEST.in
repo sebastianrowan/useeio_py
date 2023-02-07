@@ -1,4 +1,5 @@
 include LICENSE
+include README.md
 include useeio_py/data/*.parquet
 include useeio_py/inst/extdata/*.xls
 include useeio_py/inst/extdata/*.csv
