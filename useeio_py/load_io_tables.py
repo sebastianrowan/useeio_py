@@ -26,13 +26,17 @@ def load_io_data(model, config_paths = None):
         "UseValueAdded", "FinalDemand", "DomesticFinalDemand",
         "InternationalTradeAdjustment"
     ]
+
     # Load IO data
     if model.specs['IODataSource'] == "BEA":
         io_codes = load_io_codes(model)
+        national_io_data = load_national_io_data(model, io_codes)
         for name in io_table_names:
-            setattr(model, name, load_national_io_data(model, io_codes)[name]) 
+            setattr(model, name, national_io_data[name])
     elif model.specs['IODataSource'] == "stateior":
-        setattr(model, name, load_two_region_state_io_tables(model, io_codes)[name])
+        two_region_state_io_tables = load_two_region_state_io_tables(model)
+        for name in io_table_names:
+            setattr(model, name, two_region_state_io_tables[name])
 
     # Add Industry and Commodity Output
     load_commodity_and_industry_output(model)
@@ -45,14 +49,22 @@ def load_io_data(model, config_paths = None):
         model.InternationalTradeAdjustmentbyCommodity = model.InternationalTradeAdjustment
         model.FinalDemand = io_functions.transform_final_demand_with_market_shares(
             model.FinalDemand, model
-        ) #TODO
+        )
         model.DomesticFinalDemand = io_functions.transform_final_demand_with_market_shares(
             model.DomesticFinalDemand, model
         )
-        model.InternationalTradeAdjustment = unlist(io_functions.transform_final_demand_with_market_shares(
-            model.InternationalTradeAdjustment, model
-        )) # unlist is R function. not sure if it will be necessary to translate
-        # will depend on output of transform_final_demand_with_market_shares() function
+        model.InternationalTradeAdjustment = io_functions.transform_final_demand_with_market_shares( 
+                        model.InternationalTradeAdjustment, model
+        )
+        # model.InternationalTradeAdjustment = unlist(model.InternationalTradeAdjustment)
+        #TODO: incorporate unlist() that is in R code
+        # unlist takes the columns of the dataFrame and stacks them
+        # applies rownames with the following format rowname = {original_column_name}{original_row_number}
+        # looks like DataFrame.stack() will be the solution 
+        # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.stack.html
+        return
+        #TODO:  if the R::unlist() implementation works properly, model.InternationalTradeAdjustment will have
+        #       the same # of rows as model.Industries. Otherwise setting the index here will fail.
         model.InternationalTradeAdjustment = model.InternationalTradeAdjustment.set_index(
             model.Industries['Code_Loc']
         )
@@ -69,10 +81,10 @@ def load_io_data(model, config_paths = None):
     model.MultiYearCommodityCPI = model.Commodities.set_index(model.Commodities['Code_Loc'])
 
     for year_col in model.MultiYearIndustryCPI.columns:
-        model.MultiYearCommodityCPI[year_col] = io_functions.transform_industry_cpi_to_commodity_cpi_for_year(
+        model.MultiYearCommodityCPI[year_col] = io_functions.transform_industry_cpi_to_commodity_cpi_for_year( #TODO
             int(year_col),
             model
-        ) #TODO
+        ) 
     
     # Check for aggregation
     if model.specs['AggregationSpecs'] is not None:
@@ -351,19 +363,19 @@ def load_commodity_and_industry_output(model):
         # Calculate industry and commodity output
         calculate_industry_commodity_output(model) #TODO
         # Load multi-year industry output
-        model.MultiYearIndustryOutput = load_go_and_cpi.load_national_gross_output_table(model.specs)[model.Industries['Code']]
+        model.MultiYearIndustryOutput = load_go_and_cpi.load_national_gross_output_table(model.specs)
+        
         model.MultiYearIndustryOutput = model.MultiYearIndustryOutput.set_index(model.Industries['Code_Loc'])
         model.MultiYearIndustryOutput[str(model.specs['IOYear'])] = model.IndustryOutput.copy()
+        
         # Transform multi-year industry output to commodity output
-        #TODO: Check this implementation. R Code used a [, FALSE] selection to eliminate all columns here. 
-        # Not sure how this translates
-        model.MultiYearCommodityOutput = model.CommodityOutput.copy()
-
+        model.MultiYearCommodityOutput = pd.DataFrame(index=model.CommodityOutput.index)
+        
         for year_col in model.MultiYearIndustryOutput.columns:
             model.MultiYearCommodityOutput[year_col] = io_functions.transform_industry_output_to_commodity_output_for_year(
                 int(year_col),
                 model
-            )
+            ) #TODO: Check that this properly updates the year columns
         model.MultiYearCommodityOutput[str(model.specs['IOYear'])] = model.CommodityOutput.copy()
     elif model.specs['IODataSource'] == 'stateior':
         # Define state, year and iolevel
@@ -379,8 +391,9 @@ def load_commodity_and_industry_output(model):
         years = range(2012, 2018)
         import copy
         tmp_model = copy.deepcopy(model)
-        model.MultiYearIndustryOutput = model.IndustryOutput #[, FALSE]
-        model.MultiYearCommodityOutput = model.CommodityOutput #[, FALSE]
+        
+        model.MultiYearIndustryOutput = pd.DataFrame(index=model.IndustryOutput.index)
+        model.MultiYearCommodityOutput = pd.DataFrame(index=model.CommodityOutput.index)
 
         for year in years:
             tmp_model.specs['IOYear'] = year
