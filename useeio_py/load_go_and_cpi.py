@@ -6,7 +6,7 @@ import numpy as np
 import logging
 import importlib.resources
 
-
+#TODO: test implementation
 def load_national_gross_output_table(specs):
     '''
     Load US Gross Output table based on model specifications.
@@ -16,13 +16,15 @@ def load_national_gross_output_table(specs):
     
     return: A data.frame of US Gross Output.
     '''
-    pass
-    '''
-    logging::loginfo("Initializing Gross Output tables...")
+    logging.info("Initializing Gross Output tables...")
     # Load pre-saved Gross Output tables
-    GrossOutput <- get(paste0(specs$BaseIOLevel, "_GrossOutput_IO")) * 1E6 # data frame, values are in dollars ($)
-    return(GrossOutput)
-    '''
+    gross_output = pd.read_parquet(
+        importlib.resources.files('useeio_py.data2').joinpath(
+            f"{specs['BaseIOLevel']}_GrossOutput_IO.parquet"
+            )
+    ).set_index('index')
+
+    return(gross_output)
 
 #TODO: test implementation
 def load_chain_price_index_table(specs):
