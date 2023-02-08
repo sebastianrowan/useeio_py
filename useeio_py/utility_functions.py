@@ -440,6 +440,15 @@ def stack(df_dict, names):
 
     return(pd.DataFrame(stacked))
 
+def unlist(df):
+    '''
+    placeholder for function to use if I can't figure out a python/pandas equivalent of the unlist function in R
+
+    I will also rename this if I implement it, because the return type will be a list
+    '''
+    df_list = []
+    
+
 def set_tolerance_for_ras(t_r, t_c, relative_diff = None, absolute_diff = None):
     '''
     #' Calculate tolerance for RAS. Takes a target row sum vector and target colsum vector.
