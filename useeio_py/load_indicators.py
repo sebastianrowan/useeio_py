@@ -4,7 +4,7 @@
 import pandas as pd
 import numpy as np
 
-#TODO: add this as a method to the model class
+
 def load_and_build_indicators(model):
     '''
     #' Loads data for all model indicators as listed in model specs
