@@ -2,6 +2,7 @@
 '''
 Functions implementing core input-output analysis algorithms
 '''
+import sys
 import logging
 import importlib.resources
 import pandas as pd
@@ -50,7 +51,7 @@ def normalize_io_transactions(io_transactions_df, io_output_df):
     
     return: A matrix.
     '''
-    Z = io_transactions_df
+    Z = io_transactions_df.to_numpy()
     '''
     Z <- as.matrix(IO_transactions_df)
     x <- unname(unlist(IO_output_df))
@@ -94,26 +95,26 @@ def generate_market_shares_from_make(model):
     # useeior comment: Put in code here for adjusting marketshares to remove scrap
     return(D)
 
-#TODO
+
+#TODO: Test implementation
 def generate_commodity_mix_matrix(model):
     '''
-    #' Generate Commodity Mix matrix.
-    #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
-    #' @return Commodity Mix matrix of the model.
-    '''
-    pass
+    Generate Commodity Mix matrix.
+
+    Argument:
+    model:  A complete EEIO model: a list with USEEIO model components and attributes.
+
+    return: Commodity Mix matrix of the model.
     '''
     # Generate commodity mix matrix (commodity x industry), see Miller and Blair section 5.3.2
-    C <- normalizeIOTransactions(t(model$MakeTransactions), model$IndustryOutput) # C = V' %*% solve(x_hat)
-    # Validation: check if column sums equal to 1
-    industryoutputfractions <- colSums(C)
-    for (s in industryoutputfractions) {
-        if (abs(1-s)>0.01) {
-        stop("Error in commoditymix")
-        }
-    }
+    C = normalize_io_transactions(np.T(model.MakeTransactions), model.IndustryOutput) # C = V' %*% solve(x_hat)
+    industry_output_fractions = np.matrix.sum(C, axis = 1)
+    err = [abs(1-s)>0.01 for s in industry_output_fractions]
+    if sum(err) > 0:
+        msg = "Error in commodity mix"
+        logging.error(msg)
+        sys.exit(msg)
     return(C)
-    '''
 
 #TODO
 def transform_industry_output_to_commodity_output_for_year(year, model):

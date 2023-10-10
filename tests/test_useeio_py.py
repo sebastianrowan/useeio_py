@@ -13,7 +13,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
-model = USEEIOModel('USEEIOv2.0')
+# model = USEEIOModel('USEEIOv2.0')
 
 df1 = pd.DataFrame(
     {
