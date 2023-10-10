@@ -8,6 +8,7 @@ import inspect
 from .configuration_functions import get_configuration
 from .utility_functions import get_vector_of_codes, stack
 from . import load_io_tables, load_satellites, load_demand_vectors
+import sys
 
 
 class USEEIOModel:
@@ -29,8 +30,9 @@ class USEEIOModel:
         self.specs = get_configuration(model_name, "model", config_paths)
 
         if self.specs is None:
-            self._valid = False
-            self._invalid_reason = f"No configuration exists for a model named {model_name}"
+            msg = f"No configuration exists for a model named {model_name}"
+            logging.info(msg)
+            sys.exit(msg)
         else:
             # Get model crosswalk
             crosswalk_name = f"MasterCrosswalk{self.specs['BaseIOSchema']}.parquet"

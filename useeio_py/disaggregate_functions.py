@@ -2,14 +2,64 @@
 
 import pandas as pd
 import numpy as np
+import configuration_functions
+from .load_io_tables import calculate_industry_commodity_output
+import logging
+import pkgutil
+import os
+
+#TODO: Update all function documentation
+
 
 def disaggregate_model(model):
     '''
     #' Disaggregate a model based on specified source file
-#' @param model An EEIO model object with model specs and IO tables loaded
-#' @return A disaggregated model.
+    #' @param model An EEIO model object with model specs and IO tables loaded
+    #' @return A disaggregated model.
     '''
-    pass
+    logging.info("Initializing Disaggregation of IO tables...")
+
+    for disagg in model.DisaggregationSpecs:
+        # Disaggregating sector lists 
+        model.Commodities = disaggregate_sector_dfs(model, disagg, "Commodity")
+        model.Industries = disaggregate_sector_dfs(model, disagg, "Industry")
+
+        # Disaggregating main model components
+        model.UseTransactions = disaggregate_use_table(model, disagg)
+        model.MakeTransactions = disaggregate_make_table(model, disagg)
+        model.UseValueAdded = disaggregate_va(model, disagg)
+        model.DomesticUseTransactions = disaggregate_use_table(model, disagg, domestic=True)
+
+        if model.specs['CommodityorIndustryType'] == "Commodity":
+            model.FinalDemand = disaggregate_final_demand(model, disagg, domestic=False)
+            model.DomesticFinalDemand = disaggregate_final_demand(model, disagg, domestic=True)
+        else:
+            model.FinalDemandbyCommodity = disaggregate_final_demand(model, disagg, domestic=False)
+            model.DomesticFinalDemandbyCommodity = disaggregate_final_demand(model, disagg, domestic=True)
+            model.InternationalTradeAdjustmentbyCommodity = disaggregate_international_trade_adjustment(
+                model, disagg, None, adjustmentByCommodity = True
+            )
+        
+        # Balancing model
+        if disagg['DisaggregationType'] == "Userdefined":
+            model = balance_disagg(model, disagg)
+
+        # Recalculate model$CommodityOutput and model$IndustryOutput objects.
+        # This if else has to be separate from the one above because 
+        # the calculateIndustryCommodityOutput function is used prior to the creation
+        # of model$FinalDemandbyCommodity object, and we can't recalculate the
+        # commodity and industry totals before balancing.
+        if model.specs['CommodityorIndustryType'] == "Commodity":
+            model = calculate_industry_commodity_output(model)
+        else:
+            model.IndustryOutput = np.sum(model.UseTransactions, axis=0) + np.sum(model.UseValueAdded, axis=0)
+            model.CommodityOutput = np.sum(model.UseTransactions, axis=1) + np.sum(model.UseValueAdded, axis=1)
+
+        # Disaggregating MultiyearIndustryOutput and MultiYearCommodityOutput 
+        model.MultiYearCommodityOutput = disaggregate_multi_year_output(model, disagg, output_type = "Commodity")
+        model.MultiYearIndustryOutput = disaggregate_multi_year_output(model, disagg, output_type = "Industry")
+
+
 
 def get_disaggregation_specs(model, config_paths = None):
     '''
@@ -19,17 +69,109 @@ def get_disaggregation_specs(model, config_paths = None):
 #' If NULL, built-in config files are used.
 #' @return A model with the specified aggregation and disaggregation specs.
     '''
-    pass
+    model.DisaggregationSpecs = list()
+    for configFile in model.specs['DisaggregationSpecs']:
+        logging.info(f"Loading disaggregation specification file for {configFile}...")
+        config = configuration_functions.get_configuration(configFile, "disagg", config_paths)
 
+        if('Disaggregation' in config['names']):
+            model.DisaggregationSpecs.append(config['Disaggregation'])
+    
+    model = disaggregate_setup(model, config_paths)
+
+    return(model)
+
+
+#TODO: Test implementation
 def disaggregate_setup(model, config_paths = None):
     '''
     #' Setup the configuration specs based on the input files
-#' @param model An EEIO model object with model specs and IO tables loaded
-#' @param configpaths str vector, paths (including file name) of disagg configuration file(s).
-#' If NULL, built-in config files are used.
-#' @return A model object with the correct disaggregation specs.
+    #' @param model An EEIO model object with model specs and IO tables loaded
+    #' @param configpaths str vector, paths (including file name) of disagg configuration file(s).
+    #' If NULL, built-in config files are used.
+    #' @return A model object with the correct disaggregation specs.
     '''
-    pass
+    for disagg in model.DisaggregationSpecs:
+        filename = f"inst/extdata/disagspecs/{disagg['SectorFile']}" if config_paths is None \
+            else f"{os.path.dirname(config_paths)}/{disagg['SectorFile']}"
+        disagg['NAICSSectorCW'] = pd.read_csv( #TODO: probably will have to use importlib.resources.files()
+            filename,
+            delimiter = ",",
+            header = True
+        )
+        newNames = pd.DataFrame({
+            "SectorCode": disagg['NAICSSectorCW']['USEEIO_Code'],
+            "SectorName": disagg['NAICSSectorCW']['USEEIO_Name'],
+            "Category": disagg['NAICSSectorCW']['Category'],
+            "Subcategory": disagg['NAICSSectorCW']['Subcategory'],
+            "Description": disagg['NAICSSectorCW']['Description']
+        }).drop_duplicates()
+
+        disagg['DisaggregatedSectorNames'] = newNames['SectorName'].astype('string')
+        disagg['DisaggregatedSectorCodes'] = newNames['SectorCode'].astype('string')
+        disagg['Category'] = newNames['Category'].astype('string')
+        disagg['Subcategory'] = newNames['Subcategory'].astype('string')
+        disagg['Description'] = newNames['Description'].astype('string')
+
+        ''' This R code seems redundent to me. #TODO: Check implementation
+        # My impression of this code is that is takes a list, reduces it to unique values
+        #  and then recreates the original list from the unique values
+
+        disagg$DisaggregatedSectorNames <- as.list(levels(newNames[, 'SectorName']))
+        disagg$DisaggregatedSectorCodes <- as.list(levels(newNames[, 'SectorCode']))
+        disagg$Category <- lapply(newNames[, 'Category'], as.character)
+        disagg$Subcategory <- lapply(newNames[, 'Subcategory'], as.character)
+        disagg$Description <- lapply(newNames[, 'Description'], as.character)
+        
+        #reordering disaggSectorNames and DisaggSectorCodes to match the mapping in newNames
+        disagg$DisaggregatedSectorNames <- as.list(disagg$DisaggregatedSectorNames[match(newNames$SectorName,disagg$DisaggregatedSectorNames)])
+        disagg$DisaggregatedSectorCodes <- as.list(disagg$DisaggregatedSectorCodes[match(newNames$SectorCode,disagg$DisaggregatedSectorCodes)])
+        '''
+
+        # Load Make table disaggregation file
+        if disagg['MakeFile'] is not None:
+            filename = f"inst/extdata/disagspecs/{disagg['MakeFile']}" if config_paths is None \
+            else f"{os.path.dirname(config_paths)}/{disagg['MakeFile']}"
+        disagg['MakeFileDF'] = pd.read_csv( #TODO: probably will have to use importlib.resources.files()
+            filename,
+            delimiter = ",",
+            header = True
+        )
+
+        # Load Use table disaggregation file
+        if disagg['UseFile'] is not None:
+            filename = f"inst/extdata/disagspecs/{disagg['UseFile']}" if config_paths is None \
+            else f"{os.path.dirname(config_paths)}/{disagg['UseFile']}"
+        disagg['UseFileDF'] = pd.read_csv( #TODO: probably will have to use importlib.resources.files()
+            filename,
+            delimiter = ",",
+            header = True
+        )
+
+        # Load Environment flows table
+        if disagg['EnvFile'] is not None:
+            filename = f"inst/extdata/disagspecs/{disagg['EnvFile']}" if config_paths is None \
+            else f"{os.path.dirname(config_paths)}/{disagg['EnvFile']}"
+        disagg['EnvFileDF'] = pd.read_csv( #TODO: probably will have to use importlib.resources.files()
+            filename,
+            delimiter = ",",
+            header = True
+        )
+
+        disagg['EnvAlloc'] = True if "FlowRatio" in disagg['EnvFileDF'].columns else False
+
+        # For Two-region model, develop two-region specs from national disaggregation files
+        if model.specs['IODataSource'] == 'stateior' and disagg['OriginalSectorCode'][-3:] == "/US":
+            for region in model.specs['ModelRegionAcronyms']:
+                d2 = prepare_two_region_disaggregation(disagg, region, model.specs['ModelRegionAcronyms'])
+                model.DisaggregationSpecs[d2['OriginalSectorCode']] = d2
+            # Remove original disaggregation spec
+            model.DisagregationSpecs[disagg['OriginalSectorCode']] = None
+        else:
+            model.DisaggregationSpecs[disagg['OriginalSectorCode']] = disagg
+            
+        return(model)
+
 
 def prepare_two_region_disaggregation(disagg, region, regions):
     '''
@@ -41,7 +183,7 @@ def prepare_two_region_disaggregation(disagg, region, regions):
     '''
     pass
 
-def disaggregateInternationalTradeAdjustment(model, disagg, ratios = None, adjustmentByCommodity = False):
+def disaggregate_international_trade_adjustment(model, disagg, ratios = None, adjustmentByCommodity = False):
     '''
     #' Disaggregate model$InternationalTradeAdjustments vector in the main model object
 #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
@@ -60,6 +202,43 @@ def disaggregate_margins(model, disagg):
 #' @return newMargins A dataframe which contain the margins for the disaggregated sectors
     '''
     pass
+
+def disaggregate_multi_year_output(model, disagg, output_type = "Commodity"):
+   #' Disaggregate MultiYear Output model objects
+    #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
+    #' @param disagg Specifications for disaggregating the current Table
+    #' @param output_type A string that indicates whether the Commodity or Industry output should be disaggregated
+    #' @return model A dataframe with the disaggregated GDPGrossOutputIO by year 
+    if output_type == "Industry":
+        originalOutput = model.MultiYearIndustryOutput
+    else:
+        #assume commodity if industry is not specified
+        originalOutput = model.MultiYearCommodityOutput
+    
+    disaggRatios = disaggregated_ratios(model, disagg, output_type)
+    # Obtain row with original vector in GDPGrossOutput object
+    #TODO: I don't understand what this code is supposed to do exactly. Will have to write tests for the actual code to see behavior
+    originalVectorIndex = 0 # r code seems to assume this will be a single number, but also allows it to be a series???
+    originalVector = originalOutput[originalOutput.index == disagg['OriginalSectorCode']]
+    # Create new rows where disaggregated values will be stored
+    disaggOutput = pd.DataFrame(
+        np.tile(originalVector.values, reps=(len(disagg['DisaggregatedSectorCodes']), 1)),
+        columns = originalVector.columns
+    )
+
+    # apply ratios to values
+    disaggOutput = disaggOutput * disaggRatios.T()
+    
+    # rename rows
+    disaggOutput.index = disagg['DisaggregatedSectorCodes']
+
+    # bind new values to original table
+    newOutputTotals = pd.concat([originalVector, disaggOutput, originalOutput])
+
+    ''' R code for comparison because I am not sure about the translation of this part
+    #bind new values to original table
+    newOutputTotals <- rbind(originalOutput[1:originalVectorIndex-1,], disaggOutput, originalOutput[-(1:originalVectorIndex),])
+    '''
 
 def disaggregated_ratios(model, disagg, output_type = "Commodity"):
     '''

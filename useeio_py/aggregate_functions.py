@@ -2,15 +2,68 @@
 
 import pandas as pd
 import numpy as np
+import logging
+import load_io_tables
+import configuration_functions
 
+#TODO: Update function documentation
+
+#TODO: test implementation
 def aggregate_model(model):
     '''
     #' Aggregate a model based on specified source file
     #' @param model An EEIO model object with model specs and IO tables loaded
     #' @return An aggregated model.
     '''
-    pass
+    logging.info("Initializing Aggregation of IO tables...")
+    for aggSpec in model.AggregationSpecs:
+        # aggregating economic tables
+        model.MakeTransactions = aggregate_make_table(model, aggSpec)
+        model.UseTransactions = aggregate_use_table(model, aggSpec)
+        model.DomesticUseTransactions = aggregate_use_table(model, aggSpec, domestic = True)
+        model.UseValueAdded = aggregate_va(model, aggSpec)
 
+        ### These lines all marked as todo in R code...###
+        # model.FinalDemand = aggregate_fd(model, aggSpec) #TODO
+        # model.DomesticFinalDemand = aggregate_fd(model, aggSpec, domestic = True) #TODO
+        # model.MarginSectors = aggregate_margin_sectors(model, aggSpec) #TODO
+        # model.Margins = aggregate_margins(model, aggSpec) #TODO
+
+        # model.ValueAddedMeta = aggregate_va_meta(model, aggSpec) #TODO
+        # model.FinalDemandMeta = aggregate_fd_meta(model, aggSpec) #TODO
+        ##################################################
+
+        # aggregating Crosswalk
+        model.crosswalk = aggregate_master_crosswalk(model, aggSpec)
+
+        # obtaining indices to aggregate sectors in remaining model objects
+        agg = aggSpec['Spectors']
+
+        mainComIndex = get_index(model.Commodities['Code_Loc'], agg[0]) # #first item in Aggregation is the sector to aggregate to, not to be removed
+
+        mainIndIndex = get_index(model.Industries['Code_Loc'], agg[0])
+        comIndicesToAggregate = np.where(model.Commodities['Code_Loc'].isin(agg[1:]))  # find com indeces containing references to the sectors to be aggregated
+        indIndicesToAggregate = np.where(model.Industries['Code_Loc'].isin(agg[1:]))  # find ind indeces containing references to the sectors to be aggregated
+
+        # aggregating (i.e. removing) sectors from model lists
+        # aggregate Industry lists
+        if(len(indIndicesToAggregate) != 0):
+            model.Industries = remove_rows_from_list(model.Industries, indIndicesToAggregate)
+            model.MultiYearIndustryCPI = aggregate_multi_year_cpi(model, mainIndIndex, indIndicesToAggregate, "Industry")
+            model.MultiYearIndustryOutput = aggregate_multi_year_output(model.MultiYearIndustryOutput, mainIndIndex, indIndicesToAggregate)
+        
+        # aggregate Commodity lists
+        if(len(comIndicesToAggregate) != 0):
+            model.Commodities = remove_rows_from_list(model.Industries, comIndicesToAggregate)
+            model.MultiYearCommodityCPI = aggregate_multi_year_cpi(model, mainIndIndex, indIndicesToAggregate, "Commodity")
+            model.MultiYearCommodityOutput = aggregate_multi_year_output(model.MultiYearIndustryOutput, mainComIndex, comIndicesToAggregate)
+            #model.ImportCosts = aggregate_import_costs(model.Commodities, comIndicesToAggregate) #TODO: marked as todo in useeior code
+
+        model = load_io_tables.calculate_industry_commodity_output(model)
+
+    return(model)
+
+#TODO: test implementation
 def get_aggregation_specs(model, config_paths = None):
     '''
     #' Obtain aggregation specs from input files
@@ -19,7 +72,14 @@ def get_aggregation_specs(model, config_paths = None):
     #' If NULL, built-in config files are used.
     #' @return A model with the specified aggregation and disaggregation specs.
     '''
-    pass
+    model.AggregationSpecs = list()
+    for configFile in model.specs['AggregationSpecs']: # is this right?
+        logging.info(f"Loading aggregation specification file for {configFile}...")
+        config = configuration_functions.get_configuration(configFile, "agg", config_paths)
+        if('Aggregation' in config['names']):
+            model.AggregationSpecs.append(config['Aggregation'])
+    
+    return(model)
 
 def aggregate_sectors_in_tbs(model, aggregation_specs, sat_table, sat):
     '''

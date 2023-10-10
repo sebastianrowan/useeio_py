@@ -82,13 +82,13 @@ def load_io_data(model, config_paths = None):
     
     # Check for aggregation
     if model.specs['AggregationSpecs'] is not None:
-        aggregate_functions.get_aggregation_specs(model, config_paths) #TODO
-        aggregate_functions.aggregate_model(model) #TODO
+        aggregate_functions.get_aggregation_specs(model, config_paths)
+        aggregate_functions.aggregate_model(model)
 
 
     # Check for disaggregation
     if model.specs['DisaggregationSpecs'] is not None:
-        disaggregate_functions.get_disaggregation_specs(model, config_paths) #TODO
+        disaggregate_functions.get_disaggregation_specs(model, config_paths)
         disaggregate_functions.disaggregate_model(model) #TODO
 
     # Check for hybridization
