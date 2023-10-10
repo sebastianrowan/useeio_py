@@ -40,26 +40,24 @@ def adjust_output_by_cpi(output_year, reference_year, location_acronym, is_ro_us
     return(AdjustedOutput)
     '''
 
-#TODO
+#TODO: Test implementation
 def normalize_io_transactions(io_transactions_df, io_output_df):
     '''
     Derive IO coefficients
 
     Arguments:
     IO_transactions_df: IO transactions of the model in dataframe format.
-    param IO_output_df: Output of the model in dataframe format.
+    IO_output_df: Output of the model in dataframe format.
     
     return: A matrix.
     '''
     Z = io_transactions_df.to_numpy()
-    '''
-    Z <- as.matrix(IO_transactions_df)
-    x <- unname(unlist(IO_output_df))
-    x_hat <- diag(x, length(x), length(x))
-    A <- Z %*% solve(x_hat)
-    dimnames(A) <- dimnames(Z)
-    return(A)
-    '''
+    x = utility_functions.unlist(io_output_df)
+    x_hat = np.diag(x)
+    A = np.matmul(Z, np.linalg.inv(x_hat)) # R code: A <- Z %*% solve(x_hat)
+    # R code: dimnames(A) <- dimnames(Z)
+    return(A) # Not sure exactly how or if it is necessary to translate the dimnames line
+
 
 #TODO
 def generate_direct_requirements_from_use(model, domestic):
@@ -109,12 +107,13 @@ def generate_commodity_mix_matrix(model):
     # Generate commodity mix matrix (commodity x industry), see Miller and Blair section 5.3.2
     C = normalize_io_transactions(np.T(model.MakeTransactions), model.IndustryOutput) # C = V' %*% solve(x_hat)
     industry_output_fractions = np.matrix.sum(C, axis = 1)
-    err = [abs(1-s)>0.01 for s in industry_output_fractions]
+    err = utility_functions.unlist(abs(1-industry_output_fractions)>0.01)
     if sum(err) > 0:
         msg = "Error in commodity mix"
         logging.error(msg)
         sys.exit(msg)
     return(C)
+
 
 #TODO
 def transform_industry_output_to_commodity_output_for_year(year, model):
@@ -142,27 +141,24 @@ def transform_industry_cpi_to_commodity_cpi_for_year(year, model):
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
     #' @return A dataframe contains adjusted Commodity CPI.
     '''
-    pass
-    '''
     # Generate adjusted industry CPI by location
-    IndustryCPI <- model$MultiYearIndustryCPI[, as.character(year)]
+    IndustryCPI = model.MultiYearIndustryCPI[[f"{year}"]]
     # Use MarketShares (of model IO year) to transform IndustryCPI to CommodityCPI
-    MarketShares <- generateMarketSharesfromMake(model)
+    MarketShares = generate_market_shares_from_make(model)
     # The transformation is essentially a I x 1 matrix %*% a C x I matrix which yields a C x 1 matrix
-    CommodityCPI <- as.numeric(IndustryCPI %*% MarketShares)
+    CommodityCPI = np.matmul(IndustryCPI, MarketShares) # CommodityCPI <- as.numeric(IndustryCPI %*% MarketShares)
     # Non-industry sectors would have CommodityCPI of 0
     # To avoid interruption in later calculations, they are forced to 100
-    CommodityCPI[CommodityCPI==0] <- 100
+    CommodityCPI[CommodityCPI == 0] = 100
     # Validation: check if IO year CommodityCPI is 100
-    if (year==2012) {
-        for (s in CommodityCPI) {
-        if (abs(100-s)>0.3) {
-            stop("Error in CommodityCPI")
-        }
-        }
-    }
+    if (year == 2012):
+        err = utility_functions.unlist(abs(100-CommodityCPI) > 0.3)
+        if sum(err) > 0:
+            msg = "Error in CommodityCPI"
+            logging.error(msg)
+            sys.exit(msg)
     return(CommodityCPI)
-    '''
+
 
 #TODO
 def transform_direct_requirements_with_market_shares(B, D, model):

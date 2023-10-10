@@ -56,14 +56,8 @@ def load_io_data(model, config_paths = None):
         model.InternationalTradeAdjustment = io_functions.transform_final_demand_with_market_shares( 
                         model.InternationalTradeAdjustment, model
         )
-        # model.InternationalTradeAdjustment = unlist(model.InternationalTradeAdjustment)
-        #TODO: incorporate unlist() that is in R code
-        # unlist takes the columns of the dataFrame and stacks them
-        # applies rownames with the following format rowname = {original_column_name}{original_row_number}
-        # looks like DataFrame.stack() will be the solution 
-        # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.stack.html
-        return
-        #TODO:  if the R::unlist() implementation works properly, model.InternationalTradeAdjustment will have
+        model.InternationalTradeAdjustment = utility_functions.unlist(model.InternationalTradeAdjustment)
+        #TODO CHECK:  if the unlist() implementation works properly, model.InternationalTradeAdjustment will have
         #       the same # of rows as model.Industries. Otherwise setting the index here will fail.
         model.InternationalTradeAdjustment = model.InternationalTradeAdjustment.set_index(
             model.Industries['Code_Loc']
@@ -81,7 +75,7 @@ def load_io_data(model, config_paths = None):
     model.MultiYearCommodityCPI = model.Commodities.set_index(model.Commodities['Code_Loc'])
 
     for year_col in model.MultiYearIndustryCPI.columns:
-        model.MultiYearCommodityCPI[year_col] = io_functions.transform_industry_cpi_to_commodity_cpi_for_year( #TODO
+        model.MultiYearCommodityCPI[year_col] = io_functions.transform_industry_cpi_to_commodity_cpi_for_year(
             int(year_col),
             model
         ) 

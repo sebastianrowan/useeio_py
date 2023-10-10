@@ -442,11 +442,9 @@ def stack(df_dict, names):
 
 def unlist(df):
     '''
-    placeholder for function to use if I can't figure out a python/pandas equivalent of the unlist function in R
-
-    I will also rename this if I implement it, because the return type will be a list
+    Combine all columns from DataFrame into single list
     '''
-    df_list = []
+    return(np.concatenate(np.stack(df.values, axis=1), axis=None))
     
 
 def set_tolerance_for_ras(t_r, t_c, relative_diff = None, absolute_diff = None):
