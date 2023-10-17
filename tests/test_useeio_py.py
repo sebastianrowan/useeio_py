@@ -17,7 +17,14 @@ import logging
 # print(x.head())
 # print(x.columns)
 
-
+'''
+Currently working from:
+    useeio_model.py >>> __init__() >>> load_io_tables.load_io_data()
+    >>> load_io_tables.load_io_data() >>> aggregate_functions.aggregate_model()
+        >>> aggregate_va()
+        >>> aggregate_use_table()
+        >>> aggregate_sector()
+'''
 
 model = USEEIOModel('USEEIOv2.1-422')
 

@@ -92,6 +92,7 @@ def load_io_data(model, config_paths = None):
             model
         ) 
     # Check for aggregation
+    logging.debug("WORKING ON AGGREGATION")
     if "AggregationSpecs" in model.specs.keys():
         if model.specs['AggregationSpecs'] is not None:
             logging.debug("calling func...")
