@@ -17,7 +17,8 @@ def get_two_region_io_data(model_data_name):
     #' "CommodityOutput, "IndustryOutput", and "DomesticUsewithTrade".
     #' @return A list of two-region IO data of model iolevel and year.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Define state, year and iolevel
     if (!"US-DC" %in% model$specs$ModelRegionAcronyms) {

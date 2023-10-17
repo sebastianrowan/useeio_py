@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import logging
+logging.basicConfig(format='%(levelname)-8s [%(funcName)20s() %(filename)s:%(lineno)d] %(message)s',
+    level=logging.DEBUG)
+
 import importlib.resources
 import pandas as pd
 import re
@@ -51,7 +54,8 @@ class USEEIOModel:
             crosswalk[model_schema] = crosswalk[base_schema]
             self.crosswalk = crosswalk
 
-        load_io_tables.load_io_data(self)  #CURRENT
+        logging.debug("Debugging Model __init__ here...")
+        load_io_tables.load_io_data(self)
         load_satellites.load_and_build_satellite_tables(self)
         load_demand_vectors.load_demand_vectors(self)
         self.construct_EEIO_matrices()
@@ -68,7 +72,8 @@ class USEEIOModel:
         Construct EEIO matrices based on loaded IO tables, built satellite tables,
         and indicator tables.
         '''
-        pass
+        logging.debug("Function not implemented")
+        sys.exit()
         '''
         # Combine data into a single totals by sector df
         model$TbS <- do.call(rbind,model$SatelliteTables$totals_by_sector)
@@ -189,7 +194,8 @@ class USEEIOModel:
 
     def create_B_from_flow_data_and_output(self):
         '''Creates the B matrix from the flow data'''
-        pass
+        logging.debug("Function not implemented")
+        sys.exit()
         '''
         CbS_cast <- standardizeandcastSatelliteTable(model$CbS,model)
         B <- as.matrix(CbS_cast)
@@ -203,7 +209,8 @@ class USEEIOModel:
 
     def generate_cbs_from_tbs_and_model(self):
         '''Prepare coefficients (x unit/$) from the totals by flow and sector (x unit)'''
-        pass
+        logging.debug("Function not implemented")
+        sys.exit()
         '''
         CbS <- data.frame()
     
@@ -231,7 +238,8 @@ class USEEIOModel:
 
     def standardize_and_cast_satellite_table(self, df):
         '''Converts flows table into flows x sector matrix-like format'''
-        pass
+        logging.debug("Function not implemented")
+        sys.exit()
         '''
         # Add fields for sector as combinations of existing fields
         df[, "Sector"] <- apply(df[, c("Sector", "Location")],
@@ -250,7 +258,8 @@ class USEEIOModel:
 
     def create_C_from_factors_and_B_flows(self, factors, B_flows):
         '''Generate C matrix from indicator factors and model B matrix'''
-        pass
+        logging.debug("Function not implemented")
+        sys.exit()
         '''
         # Add flow field to factors
         factors$Flow <- apply(factors[, c("Flowable", "Context", "Unit")],

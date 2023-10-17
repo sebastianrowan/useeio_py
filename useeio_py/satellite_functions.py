@@ -10,7 +10,8 @@ def get_standard_satellite_table_format():
     #' Load the template of standard satellite table.
     #' @return A dataframe with the columns of the standard sat table format from the IO model builder.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     sat <- configr::read.config(system.file("extdata/IOMB_Fields.yml", package="useeior"))[["SatelliteTable"]]
     return(sat)
@@ -24,7 +25,8 @@ def map_flow_totals_by_sector_and_location_from_naics_to_bea(totals_by_sector, t
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
     #' @return A satellite table aggregated by the USEEIO model sector codes.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Consolidate master crosswalk on model level and rename
     NAICStoBEA <- unique(model$crosswalk[, c("NAICS","USEEIO")])
@@ -81,7 +83,8 @@ def generate_flow_to_dollar_coefficient(sat_table, output_year, reference_year, 
     #' @param output_type Type of the output, e.g. "Commodity" or "Industry"
     #' @return A dataframe contains intensity coefficient (kg/$).
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Generate adjusted industry output
     Output_adj <- adjustOutputbyCPI(outputyear, referenceyear, location_acronym, IsRoUS, model, output_type)
@@ -105,7 +108,8 @@ def conform_tbs_to_standard_sat_table(sat_table):
     #' @param sattable A satellite table contains FlowAmount already aggregated and transformed to coefficients.
     #' @return A standard satellite table with coefficients (kg/$) and only columns completed in the original satellite table.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Get standard sat table fields
     fields <- getStandardSatelliteTableFormat()
@@ -123,7 +127,8 @@ def stact_satellite_tables(sat_table1, sat_table2):
     #' @param sattable2 Another standardized satellite table.
     #' @return A complete standardized satellite table.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     return(rbind(sattable1, sattable2))
     '''
@@ -136,7 +141,8 @@ def aggregate_satellite_table(sat_table, from_level, model):
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
     #' @return A more aggregated satellite table.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Determine the columns within MasterCrosswalk that will be used in aggregation
     from_code <- paste0("BEA_", from_level)
@@ -155,7 +161,8 @@ def collapse_tbs(tbs, model):
     #' @param model An EEIO model object with model specs and IO table loaded
     #' @return aggregated totals by sector
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Add in BEA industry names
     sectornames <- model$Industries[, c("Code", "Name")]
@@ -205,7 +212,8 @@ def calculate_indicator_scores_for_totals_by_sector(model, totals_by_sector_name
     #' @param indicator_name The name of the indicator of interest from the model$Indicators$factors
     #' @return a totals_by_sector table with fields from the Indicator table "Code" and "Amount", and calculated "IndicatorScore" added
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Define indicator variables
     indicator_vars <- c("Flowable", "Context", "Unit", "Amount")
@@ -254,7 +262,8 @@ def check_duplicate_flows_by_sector(sat_table_ls):
     #' @param sattable_ls A list of satellite tables
     #' @return Messages about whether there are duplicates across satellite tables
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Extract unique Flowable and Context combination from each sat table
     for (table_name in names(sattable_ls)){
@@ -285,7 +294,8 @@ def map_flow_totals_by_sector_from_bea_schema_2007_to_2012(totals_by_sector):
     #' @param totals_by_sector A standardized satellite table with resource and emission names from original sources.
     #' @return A satellite table aggregated by the USEEIO model sector codes.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Load pre-saved mapping between BEA Detail Industry under 2007 and 2012 schemas
     mapping_file <- "Crosswalk_DetailIndustry2007and2012Schemas.csv"
@@ -325,7 +335,8 @@ def check_satellite_flow_loss(tbs0, tbs, tolerance = 0.005):
     #'@param tbs, totals-by-sector df in model schema
     #'@param tolerance, tolerance level for data loss
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     tbs0 <- tbs0[!is.na(tbs0$Sector), ]
     tbs <- tbs[!is.na(tbs$Sector), ]
@@ -367,7 +378,8 @@ def set_common_year_for_flow(tbs):
     #' @param tbs, a model total by sector file
     #' @return df, the tbs
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Add new column Flow to tbs
     tbs$Flow <- apply(tbs[, c("Flowable", "Context", "Unit")], 1, FUN = joinStringswithSlashes)
@@ -391,7 +403,8 @@ def remove_missing_sectors(tbs):
     #' @param tbs, totals-by-sector df in model schema
     #' @return df, the modified tbs
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     df <- tbs[!is.na(tbs$Sector), ]
     n <- nrow(tbs) - nrow(df)

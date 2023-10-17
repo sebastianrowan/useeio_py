@@ -21,7 +21,8 @@ def plot_matrix_coefficient(model_list, matrix_name, coefficient_name, sector_to
     #' @param log_scale A logical value indicating whether plotting in log scale.
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Prepare data frame for plot
     df <- data.frame()
@@ -131,7 +132,8 @@ def barplot_indicator_scores_by_sector(model_list, totals_by_sector_name, indica
     #' @param y_title The title of y axis, excluding unit.
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Generate BEA sector color mapping
     mapping <- getBEASectorColorMapping(model)
@@ -185,7 +187,8 @@ def heatmap_satellite_table_coverage(model, form = "Commodity"):
     #' @param form Form of sectors in satellite table, can be"Commodity" and "Industry".
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Generate BEA sector color mapping
     mapping <- getBEASectorColorMapping(model)
@@ -245,7 +248,8 @@ def heatmap_sector_ranking(model, matrix, indicators, sector_to_remove, N_sector
     #' @param x_title A string specifying desired title on the x-axis, default is NULL, the title will be "modelname indicators"
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Generate BEA sector color mapping
     mapping <- getBEASectorColorMapping(model)
@@ -311,7 +315,8 @@ def barplot_flow_or_impact_fraction_by_region(R1_calc_result, Total_calc_result,
     #' @return a ggplot bar chart with horizontal orientation
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     rel_diff <- as.data.frame(colSums(R1_calc_result)/colSums(Total_calc_result))
     colnames(rel_diff) <- "Fraction"
@@ -341,7 +346,8 @@ def get_bea_sector_color_mapping(model):
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes
     #' @return df with mapping with model BaseIOLevel codes to BEA Sector Codes, Names, and colors
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Load VisualizationEssentials.yml and convert it to a data frame ColorLabelMapping
     configfile <- system.file("extdata", "VisualizationEssentials.yml", package = "useeior")
@@ -370,7 +376,8 @@ def get_indicator_color_mapping():
     #' Uses VizualizationEssentials.yml to get a mapping of the to indicator Color scheme
     #' @return df with mapping with model indicator to colors
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     configfile <- system.file("extdata", "VisualizationEssentials.yml", package = "useeior")
     VisualizationEssentials <- configr::read.config(configfile)

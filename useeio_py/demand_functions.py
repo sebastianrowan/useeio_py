@@ -30,7 +30,8 @@ def sum_demand_cols(Y, codes):
     #' @return A named vector with model sectors and demand amounts
     # 
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def sum_for_consumption(model, Y):
     '''
@@ -41,7 +42,8 @@ def sum_for_consumption(model, Y):
     #' @param Y, a model Demand df.
     #' @return A named vector with model sectors and demand amounts
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def prepare_production_demand(model):
     '''
@@ -52,7 +54,8 @@ def prepare_production_demand(model):
     #' @param model An EEIO model object with model specs and IO tables loaded
     #' @return A named vector with demand
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def prepare_domestic_production_demand(model):
     '''
@@ -61,7 +64,8 @@ def prepare_domestic_production_demand(model):
     #' @param model An EEIO model object with model specs and IO tables loaded
     #' @return A named vector with demand
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def prepare_consumption_demand(model):
     '''
@@ -69,7 +73,8 @@ def prepare_consumption_demand(model):
     #' @param model An EEIO model object with model specs and IO tables loaded
     #' @return a named vector with demand
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def prepare_domestic_consumption_demand(model):
     '''
@@ -77,7 +82,8 @@ def prepare_domestic_consumption_demand(model):
     #' @param model An EEIO model object with model specs and IO tables loaded
     #' @return A named vector with demand
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def prepare_household_demand(model):
     '''
@@ -85,7 +91,8 @@ def prepare_household_demand(model):
     #' @param model An EEIO model object with model specs and IO tables loaded
     #' @return A named vector with demand
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def is_demand_vector_valid(dv, L):
     '''
@@ -133,4 +140,5 @@ def extract_and_format_demand_vector(file_path, demand_name, model):
     #' @return a demand vector formatted for use in calculating model results
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()

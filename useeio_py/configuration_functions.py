@@ -46,7 +46,8 @@ def see_available_models():
 
     return: Prints model names
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     config_files = find_model_configuration_files()
     model_names = #TODO: remove ".yml" from end of each string
@@ -59,4 +60,5 @@ def find_model_configuration_files():
 
     return: list of model config files
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()

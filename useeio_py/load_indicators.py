@@ -24,7 +24,8 @@ def load_indicators(model):
     #' @param model A model object with model specs, IO tables, and satellite tables loaded.
     #' @return A list with a dataframe for indicator meta and a dataframe for indicator factors.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     logging::loginfo("Initializing model indicators...")
     meta <- data.frame()
@@ -54,7 +55,8 @@ def load_factors(ind_spec):
     #' @param ind_spec Specification of an indicator
     #' @return A dataframe of factors with factor_fields
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     if(is.null(ind_spec$ScriptFunctionCall)) {
         # Load static LCIA factors from useeio respository data
@@ -79,7 +81,8 @@ def load_lcia_factors():
     #' Loads all LCIA factors from static source file after melting it to long file
     #' @return A dataframe of LCIA factors.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Load static LCIA factors
     lciafact <- utils::read.table(system.file("extdata", "USEEIO_LCIA_Factors.csv", package = "useeior"),
@@ -101,7 +104,8 @@ def check_indicator_for_flows(factors, flows):
     #' @param factors A dataframe of indicator characterization factors
     #' @param flows A dataframe of flows from model SatelliteTables
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     if(is.null(flows)){
         logging::logwarn("No flows found in model")

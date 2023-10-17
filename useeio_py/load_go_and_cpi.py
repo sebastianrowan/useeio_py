@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import logging
 import importlib.resources
+import sys
 
 #TODO: test implementation
 def load_national_gross_output_table(specs):
@@ -23,8 +24,7 @@ def load_national_gross_output_table(specs):
             f"{specs['BaseIOLevel']}_GrossOutput_IO.parquet"
             )
     ).set_index('index')
-
-    return(gross_output)
+    return(gross_output*1e6)
 
 #TODO: test implementation
 def load_chain_price_index_table(specs):
@@ -36,10 +36,6 @@ def load_chain_price_index_table(specs):
     logging.info("Initializing Chain Price Index tables...")
     chain_price_index = pd.read_parquet(importlib.resources.files('useeio_py.data2').joinpath(
         f"{specs['BaseIOLevel']}_CPI_IO.parquet"
-    ))
+    )).set_index('index')
+    
     return(chain_price_index)
-    '''
-    logging::loginfo("Initializing Chain Price Index tables...")
-    ChainPriceIndex <- get(paste0(specs$BaseIOLevel, "_CPI_IO"))
-    return(ChainPriceIndex)
-    '''

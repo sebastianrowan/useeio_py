@@ -11,10 +11,12 @@ def compare_E_and_LCI_result(model, use_domestic = False, tolerance = 0.05):
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes
     #' @param use_domestic, a logical value indicating whether to use domestic demand vector
     #' @param tolerance, a numeric value, tolerance level of the comparison
-    #' @return A list with pass/fail validation result and the cell-by-cell relative diff matrix
+    #' @return A list with logging.debug("Function not implemented")
+    sys.exit()/fail validation result and the cell-by-cell relative diff matrix
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Prepare left side of the equation
     CbS_cast <- standardizeandcastSatelliteTable(model$CbS,model)
@@ -51,7 +53,8 @@ def compare_E_and_LCI_result(model, use_domestic = False, tolerance = 0.05):
     # Calculate relative differences
     rel_diff <- (LCI - E)/E
     
-    # Generate Pass/Fail comparison results
+    # Generate logging.debug("Function not implemented")
+    sys.exit()/Fail comparison results
     validation <- formatValidationResult(rel_diff, abs_diff = TRUE, tolerance)
     # Add LCI and E to validation list
     validation <- c(list("LCI" = LCI, "E" = E), validation)
@@ -65,7 +68,8 @@ def calculate_product_of_leontif_and_production_demand(model, use_domestic):
     #' @param use_domestic, a logical value indicating whether to use domestic demand vector
     #' @return c, a numeric vector with total $ values for each sector in model
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     if (use_domestic) {
         f <- model$DemandVectors$vectors[endsWith(names(model$DemandVectors$vectors), "Production_Domestic")][[1]]
@@ -88,10 +92,12 @@ def compare_output_and_leontif_x_demand(model, use_domestic = False, tolerance =
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes
     #' @param use_domestic, a logical value indicating whether to use domestic demand vector
     #' @param tolerance, a numeric value, tolerance level of the comparison
-    #' @return A list with pass/fail validation result and the cell-by-cell relative diff matrix
+    #' @return A list with logging.debug("Function not implemented")
+    sys.exit()/fail validation result and the cell-by-cell relative diff matrix
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Generate output and scaling vector
     if(model$specs$CommodityorIndustryType == "Commodity") {
@@ -111,7 +117,8 @@ def compare_output_and_leontif_x_demand(model, use_domestic = False, tolerance =
     # Calculate relative differences
     rel_diff <- (c - x)/x
     
-    # Generate Pass/Fail comparison results
+    # Generate logging.debug("Function not implemented")
+    sys.exit()/Fail comparison results
     validation <- formatValidationResult(rel_diff, abs_diff = TRUE, tolerance)
     # Add c and x to validation list
     validation <- c(list("c" = c, "x" = x), validation)
@@ -123,10 +130,12 @@ def compare_commodity_output_and_domestic_use_plus_production_demand(model, tole
     #' Compares the total commodity output against the summation of model domestic Use and production demand
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes
     #' @param tolerance, a numeric value, tolerance level of the comparison
-    #' @return A list with pass/fail validation result and the cell-by-cell relative diff matrix
+    #' @return A list with logging.debug("Function not implemented")
+    sys.exit()/fail validation result and the cell-by-cell relative diff matrix
     #' @export 
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     q <- removeHybridProcesses(model, model$q)
     x <- rowSums(model$U_d[removeHybridProcesses(model, model$Commodities$Code_Loc),
@@ -141,7 +150,8 @@ def compare_commodity_output_and_domestic_use_plus_production_demand(model, tole
     # Calculate relative differences
     rel_diff <- (q - x)/q
     
-    # Generate Pass/Fail comparison results
+    # Generate logging.debug("Function not implemented")
+    sys.exit()/Fail comparison results
     validation <- formatValidationResult(rel_diff, abs_diff = TRUE, tolerance)
     # Add q and x to validation list
     validation <- c(list("q" = q, "x" = x), validation)
@@ -154,10 +164,12 @@ def compare_commodity_output_x_market_share_and_industry_output_with_cpi_transfo
     #' against the total industry output transformed by industry CPI
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes
     #' @param tolerance, a numeric value, tolerance level of the comparison
-    #' @return A list with pass/fail validation result and the cell-by-cell relative diff matrix
+    #' @return A list with logging.debug("Function not implemented")
+    sys.exit()/fail validation result and the cell-by-cell relative diff matrix
     #' @export 
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     commodityCPI_ratio <- model$MultiYearCommodityCPI[, "2017"]/model$MultiYearCommodityCPI[, "2012"]
     commodityCPI_ratio[is.na(commodityCPI_ratio)] <- 1
@@ -171,7 +183,8 @@ def compare_commodity_output_x_market_share_and_industry_output_with_cpi_transfo
     # Calculate relative differences
     rel_diff <- (q - x)/x
     
-    # Generate Pass/Fail comparison results
+    # Generate logging.debug("Function not implemented")
+    sys.exit()/Fail comparison results
     validation <- formatValidationResult(rel_diff, abs_diff = TRUE, tolerance)
     # Add q and x to validation list
     validation <- c(list("q" = q, "x" = x), validation)
@@ -183,7 +196,8 @@ def prepare_E_from_tbs(model):
     #' Concatenate all satellite flows in model
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     E <- standardizeandcastSatelliteTable(model$TbS,model)
     return(E)
@@ -196,7 +210,8 @@ def generate_chi_matrix(model, output_type = "Commodity"):
     #' @param output_type Either Commodity or Industry, default is Commodity
     #' @return Chi matrix contains ratios of model IO year commodity output over the output of the flow year in model IO year dollar.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Extract ModelYearOutput from model based on output_type
     if (output_type=="Commodity") {
@@ -235,7 +250,8 @@ def compare_industry_output_in_make_and_use(model, tolerance):
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes
     #' @param tolerance A numeric value setting tolerance of the comparison
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Calculate Industry Output (x) from Make and Use tables
     x_make <-rowSums(model$V)
@@ -251,7 +267,8 @@ def compare_industry_output_in_make_and_use(model, tolerance):
     # Calculate relative differences in x_make and x_use
     rel_diff <- (x_use - x_make)/x_make
     
-    # Generate Pass/Fail comparison results
+    # Generate logging.debug("Function not implemented")
+    sys.exit()/Fail comparison results
     validation <- formatValidationResult(rel_diff, abs_diff = TRUE, tolerance)
     # Add x_use and x_make to validation list
     validation <- c(list("x_use" = x_use, "x_make" = x_make), validation)
@@ -266,7 +283,8 @@ def validate_result(result, tolerance, abs_diff = True):
     #' @param tolerance A numeric value setting tolerance of the comparison
     #' @return A list contains confrontation details and validation results
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     result[is.na(result)] <- 0
     # Validate result
@@ -286,7 +304,8 @@ def extract_validation_result(validation, failure = True):
     #' @param failure A logical value indicating whether to report failure or not
     #' @return A data.frame contains validation results
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     df <- reshape2::melt(validation, id.vars = "rownames")
     if (failure) {
@@ -306,7 +325,8 @@ def format_validation_result(result, tolerance, abs_diff = True):
     #' @param tolerance A numeric value setting tolerance of the comparison
     #' @return A list contains formatted validation results
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Validate result
     validation <- validateResult(result, abs_diff, tolerance)
@@ -316,7 +336,8 @@ def format_validation_result(result, tolerance, abs_diff = True):
     N_passes <- nrow(passes)
     N_failures <- nrow(failures)
     return(list("RelativeDifference" = as.data.frame(result),
-                "Pass" = passes, "N_Pass" = N_passes,
+                "logging.debug("Function not implemented")
+    sys.exit()" = passes, "N_Pass" = N_passes,
                 "Failure" = failures, "N_Failure" = N_failures))
     '''
 
@@ -327,7 +348,8 @@ def check_names_and_ordering(n1, n2, note):
     #' @param n2 Name vector #2
     #' @param note Note about n1 and n2
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     if (!identical(n1, n2)) {
         stop(paste(note, "not the same or not in the same order."))
@@ -340,7 +362,8 @@ def print_validation_results(model):
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     print("Validate that commodity output can be recalculated (within 1%) with the model total requirements matrix (L) and demand vector (y) for US production")
     econval <- compareOutputandLeontiefXDemand(model, tolerance = 0.01)
@@ -387,7 +410,8 @@ def remove_hybrid_processes(model, object):
     #' @param object A model object in the form of a matrix or vector
     #' @return object with processes removed
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     if (model$specs$ModelType == "EEIO-IH") {
         if(typeof(object) == 'character'){

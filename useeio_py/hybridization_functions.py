@@ -8,7 +8,8 @@ def hybridize_A_Matrix(model, domestic = False):
     #' @param domestic A logical value indicating whether to hybridize domestic matrix.
     #' @return The A matrix for a hybridized model.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     logging::loginfo("Hybridizing model for A matrix...")
     if(domestic){
@@ -39,7 +40,8 @@ def hybridize_B_matrix(model):
     #' @param model An EEIO model object with model specs, IO tables, and satellite tables loaded
     #' @return The B matrix for a hybridized model.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     logging::loginfo("Hybridizing model for B matrix...")
     B <- model$B
@@ -70,7 +72,8 @@ def hybridize_model_objects(model):
     #' @param model A completed EEIO model object
     #' @return model with remaining objects expanded to include hybrid process data
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Update flows table
     new_flows <- unique(model$HybridizationSpecs$EnvFileDF[colnames(model$SatelliteTables$flows)])
@@ -142,7 +145,8 @@ def get_hybridization_specs(model, config_paths = None):
     #' If NULL, built-in config files are used.
     #' @return A model with the specified hybridization specs.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     model$HybridizationSpecs <- vector(mode='list')
 
@@ -166,7 +170,8 @@ def get_hybridization_files(model, config_paths = None):
     #' If NULL, built-in config files are used.
     #' @return A model object with the correct hybridization specs.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     spec <- model$HybridizationSpecs
         # Load Tech file
