@@ -72,9 +72,15 @@ def aggregate_model(model: "USEEIOModel"):
             #model.ImportCosts = aggregate_import_costs(model.Commodities, comIndicesToAggregate) #TODO: marked as todo in useeior code
         
         logging.debug("debugging here...")
-        logging.debug(model.UseTransactions.iloc[0:5,0:5]) # Values don't match
-        logging.debug(model.UseValueAdded.iloc) # Values don't match
-        logging.debug(model.FinalDemand.iloc[0:5,0:5]) # Values match
+        logging.debug("model.UseTransactions.iloc[0:5,0:5]")
+        print(model.UseTransactions.iloc[0:5,0:5]) # Values don't match
+        print("...")
+        logging.debug("model.UseValueAdded") # Values don't match
+        print(model.UseValueAdded)
+        print("...")
+        logging.debug("model.FinalDemand.iloc[0:5,0:5]") # Values match
+        print(model.FinalDemand.iloc[0:5,0:5])
+        print("...")
         sys.exit()
         logging.debug("calling func...")
         model = load_io_tables.calculate_industry_commodity_output(model)
@@ -298,6 +304,7 @@ def aggregate_sector(model: "USEEIOModel", main_sector:str, sector_to_remove:str
     if(removeColIndex != -1 and mainColIndex != -1): # If there is a row to remove and merge with main sector
         table.iloc[:,mainColIndex] = table.iloc[:,mainColIndex] + table.iloc[:,removeColIndex] # add rows together
         table.iloc[:,removeColIndex] = 0
+
     return(table)
 
 #DONE
@@ -321,7 +328,8 @@ def get_index(sector_list:pd.DataFrame, sector:str):
     try:
         index = list(sector_list).index(sector)
     except:
-        index = -1
+        index = -1 
+        logging.error("Failed to get index...")
     return(index)
 
 
