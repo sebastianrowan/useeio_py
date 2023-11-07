@@ -2,11 +2,11 @@
 
 import pandas as pd
 import numpy as np
-import configuration_functions
-from .load_io_tables import calculate_industry_commodity_output
+from . import configuration_functions, load_io_tables
 import logging
 import pkgutil
 import os
+import sys
 
 #TODO: Update all function documentation
 
@@ -27,6 +27,7 @@ def disaggregate_model(model):
         # Disaggregating main model components
         model.UseTransactions = disaggregate_use_table(model, disagg)
         model.MakeTransactions = disaggregate_make_table(model, disagg)
+        logging.debug("HELLO CHECK THIS!")
         model.UseValueAdded = disaggregate_va(model, disagg)
         model.DomesticUseTransactions = disaggregate_use_table(model, disagg, domestic=True)
 
@@ -50,7 +51,7 @@ def disaggregate_model(model):
         # of model$FinalDemandbyCommodity object, and we can't recalculate the
         # commodity and industry totals before balancing.
         if model.specs['CommodityorIndustryType'] == "Commodity":
-            model = calculate_industry_commodity_output(model)
+            model = load_io_tables.calculate_industry_commodity_output(model)
         else:
             model.IndustryOutput = np.sum(model.UseTransactions, axis=0) + np.sum(model.UseValueAdded, axis=0)
             model.CommodityOutput = np.sum(model.UseTransactions, axis=1) + np.sum(model.UseValueAdded, axis=1)
@@ -67,19 +68,18 @@ def get_disaggregation_specs(model, config_paths = None):
 #' @param model An EEIO model object with model specs and IO tables loaded
 #' @param configpaths str vector, paths (including file name) of disagg configuration file(s).
 #' If NULL, built-in config files are used.
-#' @return A model with the specified aggregation and disaggregation specs.
+#' @return None
     '''
-    model.DisaggregationSpecs = list()
+    logging.debug("check")
+    model.DisaggregationSpecs = dict()
     for configFile in model.specs['DisaggregationSpecs']:
         logging.info(f"Loading disaggregation specification file for {configFile}...")
+        logging.debug("calling func...")
         config = configuration_functions.get_configuration(configFile, "disagg", config_paths)
 
-        if('Disaggregation' in config['names']):
-            model.DisaggregationSpecs.append(config['Disaggregation'])
-    
-    model = disaggregate_setup(model, config_paths)
-
-    return(model)
+        if('Disaggregation' in config.keys()):
+            for key in config['Disaggregation']:
+                model.DisaggregationSpecs[key] = config['Disaggregation'][key]
 
 
 #TODO: Test implementation
@@ -181,7 +181,8 @@ def prepare_two_region_disaggregation(disagg, region, regions):
 #' @param regions list of location codes from ModelRegionAcronyms
 #' @return modified disagg specs for target region
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_international_trade_adjustment(model, disagg, ratios = None, adjustmentByCommodity = False):
     '''
@@ -192,7 +193,8 @@ def disaggregate_international_trade_adjustment(model, disagg, ratios = None, ad
 #' @param adjustmentByCommodity Flag to denote whether to disaggregate the InternationalTradeAdjustmentbyCommodity object which is only present in industry models
 #' @return newInternationalTradeAdjustment A vector which contains the InternationalTradeAdjustment for the disaggregated sectors
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_margins(model, disagg):
     '''
@@ -201,7 +203,8 @@ def disaggregate_margins(model, disagg):
 #' @param disagg Specifications for disaggregating the current Table
 #' @return newMargins A dataframe which contain the margins for the disaggregated sectors
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_multi_year_output(model, disagg, output_type = "Commodity"):
    #' Disaggregate MultiYear Output model objects
@@ -248,7 +251,8 @@ def disaggregated_ratios(model, disagg, output_type = "Commodity"):
 #' @param output_type A string value indicating whether to obtain "Commodity" or "Industry" ratios
 #' @return disaggRatios A dataframe which contain the disaggregated ratios for the disaggregated sectors
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_sector_dfs(model, disagg, list_type):
     '''
@@ -258,7 +262,8 @@ def disaggregate_sector_dfs(model, disagg, list_type):
 #' @param list_type string indicating whether to disaggregate model$Industry or model$Commodity dataframe. 
 #' @return newSectors A dataframe which contain the disaggregated model$Commodity or model$Industry objects
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_satellite_subset_by_ratio(sat_table, disagg, allocating_sectors, allocation_vector = None):
     '''
@@ -269,7 +274,8 @@ def disaggregate_satellite_subset_by_ratio(sat_table, disagg, allocating_sectors
 #' @param allocation_vector named vector of allocation ratios
 #' @return A satellite table with new sectors added.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_satellite_table(disagg, tbs, sat_spec):
     '''
@@ -279,7 +285,8 @@ def disaggregate_satellite_table(disagg, tbs, sat_spec):
 #' @param sat_spec, a standard specification for a single satellite table.
 #' @return A standardized satellite table with old sectors removed and new sectors added.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_make_table(model, disagg):
     '''
@@ -288,7 +295,8 @@ def disaggregate_make_table(model, disagg):
 #' @param disagg Specifications for disaggregating the current Table
 #' @return A standardized make table with old sectors removed and new sectors added.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_use_table(model, disagg, domestic = False):
     '''
@@ -298,7 +306,8 @@ def disaggregate_use_table(model, disagg, domestic = False):
 #' @param domestic A logical value indicating whether to disaggregate domestic final demand.
 #' @return A standardized make table with old sectors removed and new sectors added.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_final_demand(model, disagg, domestic = False):
     '''
@@ -308,7 +317,8 @@ def disaggregate_final_demand(model, disagg, domestic = False):
 #' @param domestic A logical value indicating whether to disaggregate domestic final demand.
 #' @return A standardized final demand table with old sectors removed and new sectors with manual and default allocations added.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_va(model, disagg):
     '''
@@ -317,7 +327,8 @@ def disaggregate_va(model, disagg):
 #' @param disagg Specifications for disaggregating the current Table
 #' @return A standardized Vale Added table with old sectors removed and new sectors with manual and default allocations added.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def uniform_disagg(model, disagg, table):
     '''
@@ -327,7 +338,8 @@ def uniform_disagg(model, disagg, table):
 #' @param table DataFrame of make or use table
 #' @return A standardized make table with old sectors removed and new, uniformly disaggregated sectors added.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_rows(row_vectors, disagg_specs, duplicate=False, not_uniform = False):
     '''
@@ -338,7 +350,8 @@ def disaggregate_rows(row_vectors, disagg_specs, duplicate=False, not_uniform = 
 #' @param notUniform A flag that indicates whether the disaggregated rows are to be disaggregated in uniform manner or not
 #' @return A dataframe with disaggregated rows.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_cols(col_vectors, disagg_specs, duplicate=False, not_uniform = False):
     '''
@@ -349,7 +362,8 @@ def disaggregate_cols(col_vectors, disagg_specs, duplicate=False, not_uniform = 
 #' @param notUniform A flag that indicates whether the disaggregated columns are to be disaggregated in uniform manner or not
 #' @return A dataframe with disaggregated columns.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_row(original_row_vector, disagg_specs, duplicate=False, not_uniform = False):
     '''
@@ -360,7 +374,8 @@ def disaggregate_row(original_row_vector, disagg_specs, duplicate=False, not_uni
 #' @param notUniform A flag that indicates whether the disaggregated row is to be disaggregated in uniform manner or not
 #' @return A dataframe with the original row disaggregated.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_col(original_col_vector, disagg_specs, duplicate=False, not_uniform = False):
     '''
@@ -371,7 +386,8 @@ def disaggregate_col(original_col_vector, disagg_specs, duplicate=False, not_uni
 #' @param notUniform A flag that indicates whether the disaggregated columns are to be disaggregated in uniform manner or not
 #' @return A dataframe with the original column disaggregated.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_master_crosswalk(model, disagg):
     '''
@@ -380,7 +396,8 @@ def disaggregate_master_crosswalk(model, disagg):
 #' @param disagg Specifications for disaggregating the current Table
 #' @return crosswalk with new sectors added.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def specified_make_disagg(model, disagg):
     '''
@@ -389,7 +406,8 @@ def specified_make_disagg(model, disagg):
 #' @param disagg Specifications for disaggregating the current Table
 #' @return A standardized make table with old sectors removed and new disaggregated sectors added based on the allocations in the disaggregation specs.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def specified_use_disagg(model, disagg, domestic = False):
     '''
@@ -399,7 +417,8 @@ def specified_use_disagg(model, disagg, domestic = False):
 #' @param domestic Flag that indicates where to use the Domestic Use or UseTransactions table
 #' @return A standardized make table with old sectors removed and new disaggregated sectors added based on the allocations in the disaggregation specs.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def assemble_table(original_table, disagg, disagg_cols, disagg_rows, disagg_intersection):
     '''
@@ -411,7 +430,8 @@ def assemble_table(original_table, disagg, disagg_cols, disagg_rows, disagg_inte
 #' @param disaggIntersection Dataframe. Previously disaggregated intersection of the table.
 #' @return The Disaggregated table as a dataframe with the disaggregated rows, columns, and intersection included
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def apply_allocation(disagg, alloc_percentages, vector_to_disagg, original_table):
     '''
@@ -422,7 +442,8 @@ def apply_allocation(disagg, alloc_percentages, vector_to_disagg, original_table
 #' @param originalTable Dataframe. The original dataframe upon which allocation is performed (e.g., Make or Use)
 #' @return A dataframe with the values specified in the disaggSpecs assigned to the correct Make or Use table indeces.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def get_default_allocation_percentages(file_df, disagg, num_new_sectors, output):
     '''
@@ -433,7 +454,8 @@ def get_default_allocation_percentages(file_df, disagg, num_new_sectors, output)
 #' @param output String indicating whether allocation values should reference "Commodity" or "Industry" outputs by default
 #' @return vector of allocation percentages
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def create_blank_intersection(new_sector_codes):
     '''
@@ -441,7 +463,8 @@ def create_blank_intersection(new_sector_codes):
 #' @param newSectorCodes vector of named disaggregated sectors
 #' @return square dataframe matrix with new sectors as row and column names
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def calculate_default_intersection(original_intersection, default_percentages, new_sector_codes):
     '''
@@ -451,7 +474,8 @@ def calculate_default_intersection(original_intersection, default_percentages, n
 #' @param newSectorCodes vector of named disaggregated sectors
 #' @return square dataframe matrix with new sectors as row and column names with default values
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def get_disagg_industry_percentages(disagg):
     '''
@@ -459,7 +483,8 @@ def get_disagg_industry_percentages(disagg):
 #' @param disagg Specifications for disaggregating the current Model
 #' @return A dataframe with the default disaggregation percentages for the Industries of the current model
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def get_disagg_commodity_percentages(disagg):
     '''
@@ -467,7 +492,8 @@ def get_disagg_commodity_percentages(disagg):
 #' @param disagg Specifications for disaggregating the current Model
 #' @return A dataframe with the default disaggregation percentages for the Commodities of the current model
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def balance_disagg(model, disagg):
     '''
@@ -476,7 +502,8 @@ def balance_disagg(model, disagg):
 #' @param disagg Specifications for disaggregating the current Table
 #' @return model object with RAS-balanced disaggregation sectors 
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def build_disagg_full_use(model, disagg):
     '''
@@ -485,7 +512,8 @@ def build_disagg_full_use(model, disagg):
 #' @param disagg Specifications for disaggregating the current Table
 #' @return dataframe representing a use table that includes the Use transactions, Use value added, and final demand sectors 
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def calculate_balanced_domestic_tables(model, disagg, balanced_full_use):
     '''
@@ -495,4 +523,5 @@ def calculate_balanced_domestic_tables(model, disagg, balanced_full_use):
 #' @param balancedFullUse A fullUse table (including UseTransactions, UseValueAdded, and FinalDemand), created to determine whether RAS balancing is needed
 #' @return list containing balanced domesticFinalDemand and domesticUseTransactions dataframes. 
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()

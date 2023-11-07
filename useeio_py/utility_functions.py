@@ -8,7 +8,8 @@ import importlib.resources
 
 def start_logging():
     '''Start logging'''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     #http://logging.r-forge.r-project.org/sample_session.php
     logging::basicConfig()
@@ -28,7 +29,8 @@ def join_strings_with_slashes(s):
     #'
     #' @param s: text string
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     items <- list(...)
     str <- sapply(items, paste, collapse = '/')
@@ -104,7 +106,8 @@ def calculate_output_ratio(model, output_type = "Commodity"):
     #' @param output_type Either Commodity or Industry, default is Commodity
     #' @return A data frame of output ratio
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Generate Output based on output_type 
     if (output_type == "Commodity") {
@@ -168,7 +171,8 @@ def compare_matrices(m1, m2, percentage_diff = False):
     #' @param percentage_diff A logical value indicating whether to compare percentage difference
     #' @return A matrix of comparison
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     if (dim(m1)!=dim(m2)) {
         stop("Make m1 and m2 have the same dimensions first.")
@@ -188,7 +192,8 @@ def write_matrix_as_bin_file(matrix, path):
     #' @param matrix A matrix to be written
     #' @param path Path to write the bin file to
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     out <- file(path, "wb")
     rows <- dim(matrix)[1]
@@ -211,7 +216,8 @@ def download_data_commons_file(source, subdirectory, debug_url):
     #' Data Commons including any subfolders (e.g. "lciafmt/traci_2_1")
     #' @param debug_url The Data Commons base url, including directory and subdirectories
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Define file directory
     directory <- paste0(rappdirs::user_data_dir(), "/", subdirectory)
@@ -234,7 +240,8 @@ def load_data_commons_file(static_file):
     #' @param static_file The name of a static file, including the subdirectories
     #' @return The static file originating from Data Commons
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # load method name
     method_name <- static_file
@@ -267,7 +274,8 @@ def map_fips5_to_location_names(fips_codes, fips_system):
     #' @param fipssystem A text value specifying FIPS System, can be FIPS_2015
     #' @return A vector of location names where matches are found
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     mapping_file <- "Crosswalk_FIPS.csv"
     mapping <- utils::read.table(system.file("extdata", mapping_file, package = "useeior"),
@@ -293,23 +301,13 @@ def map_location_codes_to_names(codes, code_system):
     #' @param codesystem A text value specifying code system, e.g. FIPS.
     #' @return A vector of location names where matches are found.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     func_dict <- list("FIPS" = "mapFIPS5toLocationNames") # add more component for new location codes
     func_to_eval <- func_dict[[codesystem]]
     location_names <- do.call(eval(as.name(func_to_eval)), list(codes, codesystem))
     return(location_names)
-    '''
-
-#TODO: This function shouldn't be necessary since its purpose is to handle a conversion from Python type to R type. Just make sure before deleting.
-    '''
-    #' Replaces all `None` in a dataframe with the R NULL type NA
-    #' @param df A data frame
-    #' @return A data frame without `None`
-    replaceNonewithNA <- function(df) {
-    df[df=='None'] <- NA
-    return(df)
-    }
     '''
 
 def get_state_name_from_abb(abb):
@@ -444,7 +442,7 @@ def unlist(df):
     '''
     Combine all columns from DataFrame into single list
     '''
-    return(np.concatenate(np.stack(df.values, axis=1), axis=None))
+    return(np.concatenate(np.stack(pd.DataFrame(df).values, axis=1), axis=None))
     
 
 def set_tolerance_for_ras(t_r, t_c, relative_diff = None, absolute_diff = None):
@@ -457,7 +455,8 @@ def set_tolerance_for_ras(t_r, t_c, relative_diff = None, absolute_diff = None):
     #' @param absolute_diff A numeric value setting the mean absolute difference of the two numerical vectors.
     #' @return A numeric value of relative difference of t_r and t_c.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     if (!is.null(relative_diff)) {
         t <- relative_diff
@@ -482,7 +481,8 @@ def ras(m0, t_r, t_c, t, max_itr = 1E6):
     #' Default is 1,000,000.
     #' @return A RAS balanced matrix.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     m <- m0
     c_r <- as.vector(rowSums(m0))
@@ -538,7 +538,8 @@ def apply_ras(m0, t_r, t_c, relative_diff, absolute_diff, max_itr):
     #' Default is 1,000,000.
     #' @return A RAS balanced matrix.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Adjust t_c/t_r, make sum(t_c)==sum(t_r)
     if (sum(t_c) > sum(t_r)) {
@@ -559,7 +560,8 @@ def remove_extra_spaces(s):
     #' @param s, string
     #' @return A string with spaces removed
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     s <- gsub("\\s", "",s)
     return(s)
@@ -571,7 +573,8 @@ def remove_number_in_slashes(s):
     #' @param s, string
     #' @return A string with numbers in slashes removed
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     s <- gsub(" /.*", "",s)
     return(s)
@@ -583,7 +586,8 @@ def convert_str_encoding_lat_into_ascii(s):
     #' @param s, string with Latin-1 encoding
     #' @return A string with ASCII encoding
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     s <- iconv(s, from = 'latin1', to = 'ASCII', sub='')
     return(s)
@@ -608,7 +612,8 @@ def generate_model_sector_schema(model):
     #' @param model An EEIO model object with model specs loaded
     #' @return A string of sector schema for a model
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     SectorSchema <- paste(model$specs$IODataSource, 
                             model$specs$BaseIOLevel, sep = "_")
@@ -636,7 +641,8 @@ def write_metadata_to_json(package, name, year, source, url, date_last_modified,
     #' by package.
     #' @description Write metadata of downloaded data to JSON.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     metadata <- list("tool" = utils::packageDescription(package,
                                                         fields = "Package"),
@@ -665,7 +671,8 @@ def format_location_for_state_models(location):
     #' @param location A text value of input location name
     #' @return A text value of formatted location for state models
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     loc <- stringr::str_replace_all(string = tolower(location),
                                     pattern = setNames(paste("US", state.abb, sep = "-"),

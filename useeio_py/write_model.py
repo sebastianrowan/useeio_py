@@ -18,7 +18,8 @@ def write_model_for_api(model, base_dir):
     #' @description Writes all model data and metadata components to the API
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     dirs <- setWriteDirs(model,basedir)
     prepareWriteDirs(model, dirs)
@@ -37,7 +38,8 @@ def write_model_matrices(model, to_format, output_folder):
     #' @description Writes model matrices as .csv or .bin files to output folder.
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     if (to_format=="csv") {
         modelfolder <- file.path(outputfolder, model$specs$Model, "matrices")
@@ -70,7 +72,8 @@ def write_model_to_xlsx(model, output_folder):
     #' @description Writes model matrices demand vectors, and metadata as XLSX file to output folder.
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # List model matrices
     USEEIOtoXLSX_ls <- model[matrices]
@@ -149,7 +152,8 @@ def generate_model_identifier(model):
     #' @return char string
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     id <- digest::digest(model, algo = "sha256")
     return(id)
@@ -166,7 +170,8 @@ def set_write_dirs(base_dir, model = None):
     #' If model is not passed, just sets data directory. 
     #' @return A named list of directories for model output writing
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     dirs <- list()
     dirs$data <-  file.path(basedir,"build","data")
@@ -185,7 +190,8 @@ def prepare_write_dirs(model, dirs):
     #' @description Sets directories to write model output data to.
     #' If model is not passed, just uses data directory.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     if (missing(model)) {
         if (!dir.exists(dirs$data)) {
@@ -208,7 +214,8 @@ def write_model_demand_to_json(model, output_folder):
     #' @param outputfolder A directory to write model demand vectors.
     #' @description Writes model demand vectors, including y and y_d for consumption and production.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     #!WARNING: Only works for single region model
     if (model$specs$ModelRegionAcronyms!="US") {
@@ -235,7 +242,8 @@ def write_model_metadata(model, dirs):
     #' @param dirs A named list of directories with model and data directory paths
     #' @description Writes model metadata, including indicators and demands.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     #!WARNING: Only works for single region model
     if (model$specs$ModelRegionAcronyms!="US") {
@@ -343,7 +351,8 @@ def write_sector_crosswalk(model, output_folder):
     #' @param outputfolder A directory to write model sector crosswalk
     #' @description Writes the model sector crosswalk as .csv file
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     crosswalk <- prepareModelSectorCrosswalk(model)
     crosswalk$ModelSchema <- ""
@@ -359,7 +368,8 @@ def write_session_info_to_file(path):
     #' @param path, str, a path without the file
     #' @return None
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     s <- utils::sessionInfo()
     f <- paste0(path,"/Rsessioninfo.txt")
@@ -372,7 +382,8 @@ def prepare_model_sector_crosswalk(model):
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
     #' @return a data.frame, sectorcrosswalk table
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     crosswalk <- model$crosswalk
     #create name to use as column header for disaggregated schema

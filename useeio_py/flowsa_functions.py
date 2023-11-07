@@ -10,7 +10,8 @@ def get_flow_by_sector_collapsed(sat_spec):
     #' @param sat_spec, a standard specification for a single satellite table
     #' @return A data frame for flowsa data in sector by region totals format
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Access flowsa getFlowBySector_collapsed by indicating StaticSource: False
     if (!(sat_spec$StaticSource)) {
@@ -57,7 +58,8 @@ def prepare_flow_by_sector_collapsed_for_satellite(fbsc):
     #' @param fbsc A FlowBySector collapsed df from flowsa
     #' @return A data frame of sector by region totals
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Replace Python type None with NA
     fbsc <- replaceNonewithNA(fbsc)

@@ -21,7 +21,8 @@ def adjust_output_by_cpi(output_year, reference_year, location_acronym, is_ro_us
     #' @param output_type Type of the output, e.g. "Commodity" or "Industry"
     #' @return A dataframe contains adjusted Industry output with row names being BEA sector code.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Load Industry Gross Output
     selected_rows <- grepl(location_acronym, rownames(model$MultiYearIndustryOutput))
@@ -40,7 +41,7 @@ def adjust_output_by_cpi(output_year, reference_year, location_acronym, is_ro_us
     return(AdjustedOutput)
     '''
 
-#TODO: Test implementation
+#DONE: Implementation checked and passes
 def normalize_io_transactions(io_transactions_df, io_output_df):
     '''
     Derive IO coefficients
@@ -55,8 +56,10 @@ def normalize_io_transactions(io_transactions_df, io_output_df):
     x = utility_functions.unlist(io_output_df)
     x_hat = np.diag(x)
     A = np.matmul(Z, np.linalg.inv(x_hat)) # R code: A <- Z %*% solve(x_hat)
-    # R code: dimnames(A) <- dimnames(Z)
-    return(A) # Not sure exactly how or if it is necessary to translate the dimnames line
+    A = pd.DataFrame(A, index=io_transactions_df.index)
+    A.columns=io_transactions_df.columns
+
+    return(A) 
 
 
 #TODO
@@ -67,7 +70,8 @@ def generate_direct_requirements_from_use(model, domestic):
     #' @param domestic A logical parameter indicating whether to calculate DR or Domestic DR.
     #' @return Direct Requirements matrix of the model.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Generate direct requirements matrix (commodity x industry) from Use, see Miller and Blair section 5.1.1
     if (domestic==TRUE) {
@@ -94,7 +98,7 @@ def generate_market_shares_from_make(model):
     return(D)
 
 
-#TODO: Test implementation
+#DONE: Implementation checked and passes
 def generate_commodity_mix_matrix(model):
     '''
     Generate Commodity Mix matrix.
@@ -105,9 +109,10 @@ def generate_commodity_mix_matrix(model):
     return: Commodity Mix matrix of the model.
     '''
     # Generate commodity mix matrix (commodity x industry), see Miller and Blair section 5.3.2
-    C = normalize_io_transactions(np.T(model.MakeTransactions), model.IndustryOutput) # C = V' %*% solve(x_hat)
-    industry_output_fractions = np.matrix.sum(C, axis = 1)
-    err = utility_functions.unlist(abs(1-industry_output_fractions)>0.01)
+    C = normalize_io_transactions(np.transpose(model.MakeTransactions), model.IndustryOutput) # C = V' %*% solve(x_hat)
+
+    industry_output_fractions = np.sum(C.to_numpy(), axis = 0)
+    err = abs(1-industry_output_fractions)>0.01
     if sum(err) > 0:
         msg = "Error in commodity mix"
         logging.error(msg)
@@ -115,15 +120,20 @@ def generate_commodity_mix_matrix(model):
     return(C)
 
 
-#TODO
-def transform_industry_output_to_commodity_output_for_year(year, model):
+#DONE
+def transform_industry_output_to_commodity_output_for_year(year: int | str, model: "USEEIOModel"):
     '''
     #' Generate Commodity output by transforming Industry output using Commodity Mix matrix.
     #' @param year Year of Industry output
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
     #' @return A dataframe contains adjusted Commodity output.
     '''
-    pass
+    # Generate adjusted industry output by location
+    IndustryOutput = model.MultiYearIndustryOutput[str(year)]
+    # Use CommodityMix to transform IndustryOutput to CommodityOutput
+    CommodityMix = generate_commodity_mix_matrix(model)
+    CommodityOutput = np.matmul(CommodityMix, IndustryOutput)
+    return(CommodityOutput)
     '''
     # Generate adjusted industry output by location
     IndustryOutput <- model$MultiYearIndustryOutput[, as.character(year)]
@@ -133,7 +143,7 @@ def transform_industry_output_to_commodity_output_for_year(year, model):
     return(CommodityOutput)
     '''
 
-#TODO
+#DONE: Implementation checked and passes
 def transform_industry_cpi_to_commodity_cpi_for_year(year, model):
     '''
     #' Generate Commodity CPI by transforming Industry CPI using Commodity Mix matrix.
@@ -142,17 +152,17 @@ def transform_industry_cpi_to_commodity_cpi_for_year(year, model):
     #' @return A dataframe contains adjusted Commodity CPI.
     '''
     # Generate adjusted industry CPI by location
-    IndustryCPI = model.MultiYearIndustryCPI[[f"{year}"]]
+    IndustryCPI = model.MultiYearIndustryCPI[f"{year}"]
     # Use MarketShares (of model IO year) to transform IndustryCPI to CommodityCPI
     MarketShares = generate_market_shares_from_make(model)
     # The transformation is essentially a I x 1 matrix %*% a C x I matrix which yields a C x 1 matrix
-    CommodityCPI = np.matmul(IndustryCPI, MarketShares) # CommodityCPI <- as.numeric(IndustryCPI %*% MarketShares)
+    CommodityCPI = np.matmul(IndustryCPI, MarketShares.to_numpy()) # CommodityCPI <- as.numeric(IndustryCPI %*% MarketShares)
     # Non-industry sectors would have CommodityCPI of 0
     # To avoid interruption in later calculations, they are forced to 100
     CommodityCPI[CommodityCPI == 0] = 100
     # Validation: check if IO year CommodityCPI is 100
     if (year == 2012):
-        err = utility_functions.unlist(abs(100-CommodityCPI) > 0.3)
+        err = abs(100-CommodityCPI) > 0.3
         if sum(err) > 0:
             msg = "Error in CommodityCPI"
             logging.error(msg)
@@ -169,7 +179,8 @@ def transform_direct_requirements_with_market_shares(B, D, model):
     #' @param D Market Shares matrix.
     #' @return Direct Requirements matrix.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Only generate result if the column names of the direct requirements table match the row names of the market shares matrix
     if (all(colnames(B) == rownames(D)) && all(colnames(D) == rownames(B))) {
@@ -215,7 +226,8 @@ def calculate_leontif_inverse(A):
     #' @param A Direct Requirements matrix.
     #' @return Leontief inverse.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     I <- diag(nrow(A))
     L <- solve(I-A)

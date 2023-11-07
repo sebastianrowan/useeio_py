@@ -20,7 +20,8 @@ def map_list_by_name(sat_table, sat_table_meta):
 
     return: A standardized satellite table with new resource and emission names.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     originalflowsource <- sattablemeta$OriginalFlowSource
     if(originalflowsource=="") {

@@ -11,7 +11,8 @@ def compare_flow_totals(model_a, model_b):
 #' @return a list with pass/fail comparison results
 #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def group_and_sum_tbs_by_flow_loc(tbs):
     '''
@@ -19,4 +20,5 @@ def group_and_sum_tbs_by_flow_loc(tbs):
 #' @param TbS a totals-by-sector list from a model
 #' @return flowtotal, a df with 1 column of flowamount with a total for that flow given in rowname
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()

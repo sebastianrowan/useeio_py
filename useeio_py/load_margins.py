@@ -61,7 +61,7 @@ def get_margins_table(model):
     margins_table = margins_table.groupby("CommodityCode")[value_columns].agg('sum')
     commodity_code = list(margins_table.index)
     margins_table = margins_table.reset_index()
-    logging.debug(margins_table)
+    # logging.debug(margins_table)
     # Keep model Commodities
     margins_table = margins_table.merge(model.Commodities[["Code","Name", "Code_Loc"]], how='right', left_on="CommodityCode", right_on="Code")
     margins_table = margins_table.fillna(0)
@@ -78,11 +78,12 @@ def get_margins_table(model):
 
         # Transform PRO value and Margins for Commodities from Commodity to Industry format, (Margins' * C_m )'
         margins_values_com = margins_table[value_columns]
-        margins_values_ind = np.transpose(np.matmul(np.transpose(margins_values_com), commodity_mix)) #WAITING: This line won't work until commodity_mix is implemented
+        margins_values_ind = np.transpose(np.matmul(np.transpose(margins_values_com.to_numpy()), commodity_mix)) 
         # Merge Industry Margins Table with Commodity Margins Table to add in metadata columns
-        margins_table_industry[value_columns] = margins_values_ind
+
+        margins_table_industry.loc[:,value_columns] = margins_values_ind
         cols = [col for col in margins_table if col not in value_columns]
-        margins_table = pd.merge(margins_table_industry, margins_table[cols], how='left', left_on='IndustyCode', right_on='CommodityCode')
+        margins_table = pd.merge(margins_table_industry, margins_table[cols], how='left', left_on='IndustryCode', right_on='CommodityCode')
         margins_table = margins_table.fillna(0)
     
     # Calculate Purchaser's value

@@ -16,7 +16,8 @@ def adjust_result_matrix_price(matrix_name, currency_year, model, purchaser_pric
     #' @return A model result matrix after price adjustment
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def calculate_model_io_year_by_year_price_ratio(model):
     '''
@@ -24,7 +25,8 @@ def calculate_model_io_year_by_year_price_ratio(model):
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
     #' @return A dataframe of model IO year by year price ratio.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def calculate_producer_by_purchaser_price_ratio(model):
     '''
@@ -32,7 +34,8 @@ def calculate_producer_by_purchaser_price_ratio(model):
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
     #' @return A dataframe of producer to purchaser price ratio.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def adjust_multiplier_price_year(matrix_name, currency_year, model):
     '''
@@ -42,7 +45,8 @@ def adjust_multiplier_price_year(matrix_name, currency_year, model):
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
     #' @return A matrix representing the multiplier that is adjusted to currency year price.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def adjust_multiplier_price_type(matrix, currency_year, model):
     '''
@@ -52,4 +56,5 @@ def adjust_multiplier_price_type(matrix, currency_year, model):
     #' @param model A complete EEIO model: a list with USEEIO model components and attributes.
     #' @return A matrix representing the multiplier that is adjusted to purchaser price.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()

@@ -213,7 +213,8 @@ def calculate_sector_contribution_to_impact(model, sector, indicator, domestic=F
     #' @return A dataframe sorted by contribution (high-to-low), also showing "L", "D", "impact".
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def calculate_flow_contribution_to_impact(model, sector, indicator, domestic=False):
     '''
@@ -226,7 +227,8 @@ def calculate_flow_contribution_to_impact(model, sector, indicator, domestic=Fal
     #' @return A dataframe sorted by contribution (high-to-low), also showing "M", "C", "impact".
     #' @export 
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def aggregate_result_matrix_by_row(matrix, to_level, crosswalk):
     '''
@@ -238,7 +240,8 @@ def aggregate_result_matrix_by_row(matrix, to_level, crosswalk):
     #' @return An aggregated matrix with sectors as rows
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def aggregate_result_matrix(matrix, to_level, crosswalk):
     '''
@@ -250,7 +253,8 @@ def aggregate_result_matrix(matrix, to_level, crosswalk):
     #' @return An aggregated matrix with sectors as rows and columns
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def calculate_sector_purchased_by_sector_sourced_impact(y, model, indicator):
     '''
@@ -263,7 +267,8 @@ def calculate_sector_purchased_by_sector_sourced_impact(y, model, indicator):
     #' negative values should be interpreted as "reduced impacts".
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def calculate_margin_sector_impacts(model):
     '''
@@ -272,7 +277,8 @@ def calculate_margin_sector_impacts(model):
     #' @return A list with M_margin and N_margin
     #' @export
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def disaggregate_total_to_direct_and_tier1(model, indicator):
     '''
@@ -284,7 +290,8 @@ def disaggregate_total_to_direct_and_tier1(model, indicator):
     #' @export
     #' @return A data frame of direct and per-tier-1-purchase sector impacts
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 def calculate_total_impact_by_tier1_purchase(model, indicator):
     '''
@@ -295,6 +302,7 @@ def calculate_total_impact_by_tier1_purchase(model, indicator):
     #' @param indicator str, index of a model indicator, e.g. "Greenhouse Gases".
     #' @return A sector x sector, impact-per-tier-1-purchase matrix.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 

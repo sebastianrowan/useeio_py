@@ -25,7 +25,8 @@ def get_naics_to_bea_allocation(year, model):
     #' @param year Year of model Industry output.
     #' @return A table of allocation factors between NAICS and BEA sectors.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
 
 #TODO: ensure file names are properly referenced in file structure for python module
 #TODO: throw error if user inputs year other than 2012 or 2007
@@ -114,7 +115,8 @@ def get_naics_7_to_10_digits_code_name(year):
     #' @param year int. 2012 or 2007 accepted.
     #' @return data frame with columns NAICS_year_Code and NAICS_year_Name.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     if (year==2012) {
         # Download Census 2012 Numerical List of Manufactured and Mineral Products
@@ -157,7 +159,8 @@ def get_naics_7_to_10_digits(year):
     #' @param year int. 2012 or 2007 accepted.
     #' @return data frame with columns NAICS_7, NAICS_8, NAICS_9, NAICS_10.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     NAICSCodeName <- getNAICS7to10DigitsCodeName(year)
     # Change column name from year-specific to generic
@@ -178,7 +181,8 @@ def get_naics_crosswalk(year):
     #' @param year int. 2012 or 2007 accepted.
     #' @return data frame with columns NAICS_2, NAICS_3, NAICS_4, NAICS_5, NAICS_6, NAICS_7, NAICS_8, NAICS_9, NAICS_10.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # 2-6 digit
     NAICS_2to6 <- getNAICS2to6Digits(year)
@@ -199,7 +203,8 @@ def get_naics_code_name(year):
     #' @return data frame with columns NAICS_2, NAICS_3, NAICS_4, NAICS_5, NAICS_6,
     #' NAICS_7, NAICS_8, NAICS_9, NAICS_10.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # 2-6 digit
     NAICSCodeName_2to6 <- getNAICS2to6DigitsCodeName(year)

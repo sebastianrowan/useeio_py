@@ -10,7 +10,8 @@ def get_impact_method(ind_spec):
     #' @param ind_spec Specification of an indicator
     #' @return An LCIAmethod with the specified indicators
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     parameters <- ind_spec[["ScriptFunctionParameters"]]
 
@@ -68,7 +69,8 @@ def get_combined_impact_methods(ind_spec):
     #' @param ind_spec Specification of an indicator
     #' @return An LCIAmethod with the specified indicators
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     imp_method = getImpactMethod(ind_spec)
     
@@ -92,7 +94,8 @@ def prepare_lcia_method_for_indicators(lcia_method):
     #' @param lciamethod A full LCIAmethod data frame from LCIAformatter via getInventoryMethod or getImpactMethod.
     #' @return A LCIAmethod data frame formatted for indicators
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Replace Python type None with NA
     lciamethod <- replaceNonewithNA(lciamethod)

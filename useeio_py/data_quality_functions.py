@@ -14,7 +14,8 @@ def get_dq_fields(df):
     #' @param df A totals_by_sector data frame
     #' @return A string vector with names of data quality fields
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     flow_data_quality_fields <- c("DataReliability",
                                     "TemporalCorrelation",
@@ -31,7 +32,8 @@ def set_dq_scoring_bounds():
     #' and for each indicator, provide those bounds
     #' @return A list with DQ bounds
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     bound_to_dqi <- list()
     bound_to_dqi[["upper"]] <- c("TemporalCorrelation")
@@ -53,7 +55,8 @@ def lookup_dq_bound_score(raw_score, dqi, scoring_bounds):
     #' @param scoring_bounds List. Constant returned by setDQScoringBounds()
     #' @return integer, a data quality score
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     score <- NA
     if (is.na(raw_score)){
@@ -89,7 +92,8 @@ def score_contextual_dq(df):
     #' @return A data frame with contextual data quality scores added in columns
     #' with names of the indicators. Only 'TemporalCorrelation' currently added.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     bounds <- setDQScoringBounds()
     for (year in unique(df$Year)) {
@@ -106,7 +110,8 @@ def score_temporal_dq(data_year, scoring_bounds, target_year=None):
     #' @param scoring_bounds global scoring bounds
     #' @return An integer data quality score 1-5 or NA
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     if (is.na(data_year)) {
         return(NA)

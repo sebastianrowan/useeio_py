@@ -10,7 +10,8 @@ def load_demand_vectors(model):
     #' @param model An EEIO model object with model specs and IO tables loaded
     #' @return model with a list of demand vectors and a meta file stored appended as model$DemandVectors
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     logging::loginfo("Loading demand vectors ...")
     model$DemandVectors <- list()
@@ -57,7 +58,8 @@ def load_default_demand_vector_meta(model):
     #' @param model An EEIO model object with model specs and IO tables loaded
     #' @return a data frame of metadata with columns Type, System, Name, Year, Location and ID with rows for each default
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     meta <- data.frame()
     specs <- getConfiguration("DefaultDemandVectors", "demand")

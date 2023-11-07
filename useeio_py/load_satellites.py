@@ -6,40 +6,10 @@ import numpy as np
 
 def load_sat_tables(model):
     '''
-    #' Load totals by sector/region and prepares them based on model specs.
-    #' @param model A model list object with model specs and IO tables listed
-    #' @return Lists of totals by sector by region and unique flows
-    #' @format A list with lists of totals by sector
-    #' \describe{
-    #'  \itemize{
-    #'    \item totals_by_sector
-    #'      \itemize{
-    #'        \item Flowable {Name of the flow}
-    #'        \item Context {Full context of the flow, compartment and subcompartment combined}
-    #'        \item Unit {SI unit acronym. 'kg' for mass flows; 'MJ' for energy flows.}
-    #'        \item FlowUUID {unique hex code for flow}
-    #'        \item SectorName {Name of the sector}
-    #'        \item Sector {Code of the sector in the model IO schema}
-    #'        \item FlowAmount {Amount of the flow}
-    #'        \item Location {Activity location, at a national, state, or county level}
-    #'        \item Year {Year of the data}
-    #'        \item DistributionType {Form of the frequency distribution, if given. Acceptable values are 'NORMAL', 'LOGNORMAL', 'TRIANGULAR', 'UNIFORM'.}
-    #'        \item Min {The minimum FlowAmount, if provided for the data range.}
-    #'        \item Max {The maximum FlowAmount, if provided for the data range.}
-    #'        \item DataReliability {A 1-5 score of data reliability based on reporting values associated with the amount.}
-    #'        \item TemporalCorrelation {A 1-5 score of data collection based on reporting values associated with the amount.}
-    #'        \item GeographicalCorrelation {A 1-5 score of data collection based on reporting values associated with the amount.}
-    #'        \item TechnologicalCorrelation {A 1-5 score of data collection based on reporting values associated with the amount.}
-    #'        \item DataCollection {A 1-5 score of data collection based on reporting values associated with the amount.}
-    #'        \item MetaSources {Tag for the data source.}
-    #'    }
-    #'  }
-    #' }
-    #' @description Supports BEA and NAICS based totals. These totals can be provided as static files
-    #' or dynamic function calls are supported. NAICS-based totals are aggregated/allocated to BEA sectors
-    #' as part of the preparation.
+    Load totals by sector/region and prepares them based on model specs.
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     sattables <- list()
     sattables$totals_by_sector <- list()
@@ -110,7 +80,8 @@ def generate_tbs_from_sat_spec(sat_spec, model):
     #' @param model A model list object with model specs and IO tables listed
     #'@return a totals-by-sector dataframe
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Check if the satellite table uses a file from within useeior. If so, proceed.
     # If not, use specified functions in model metadata to load data from dynamic source
@@ -144,7 +115,8 @@ def conform_tbs_to_io_schema(tbs, sat_spec, model):
     #'@param model an EEIO model with IO tables loaded
     #'@return a totals-by-sector df with the sectors and flow amounts corresponding to the model schema
     '''
-    pass
+    logging.debug("Function not implemented")
+    sys.exit()
     '''
     # Check if aggregation or disaggregation are needed based on model metadata
     if(!is.null(sat_spec$StaticFile)) {
