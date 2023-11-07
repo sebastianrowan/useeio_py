@@ -7,7 +7,7 @@ from . import (load_io_tables, configuration_functions)
 import sys
 
 
-#TODO: test implementation
+#Done
 def aggregate_model(model: "USEEIOModel"):
     '''
     #' Aggregate a model based on specified source file
@@ -41,7 +41,6 @@ def aggregate_model(model: "USEEIOModel"):
         # aggregating Crosswalk
         logging.debug("calling func...")
         model.crosswalk = aggregate_master_crosswalk(model, aggSpec)
-
         # obtaining indices to aggregate sectors in remaining model objects
         agg = aggSpec['Sectors']
         logging.debug("calling func...")
@@ -70,26 +69,14 @@ def aggregate_model(model: "USEEIOModel"):
             logging.debug("calling func...")
             model.MultiYearCommodityOutput = aggregate_multi_year_output(model.MultiYearIndustryOutput, mainComIndex, comIndicesToAggregate)
             #model.ImportCosts = aggregate_import_costs(model.Commodities, comIndicesToAggregate) #TODO: marked as todo in useeior code
-        
-        logging.debug("debugging here...")
-        logging.debug("model.UseTransactions.iloc[0:5,0:5]")
-        print(model.UseTransactions.iloc[0:5,0:5]) # Values don't match
-        print("...")
-        logging.debug("model.UseValueAdded") # Values don't match
-        print(model.UseValueAdded)
-        print("...")
-        logging.debug("model.FinalDemand.iloc[0:5,0:5]") # Values match
-        print(model.FinalDemand.iloc[0:5,0:5])
-        print("...")
-        sys.exit()
-        logging.debug("calling func...")
-        model = load_io_tables.calculate_industry_commodity_output(model)
 
-    return(model)
+        logging.debug("calling func...")
+        load_io_tables.calculate_industry_commodity_output(model)
+
+    # return(model)
 
 #TODO: test implementation
 def get_aggregation_specs(model: "USEEIOModel", config_paths = None):
-    logging.debug("check")
     '''
     #' Obtain aggregation specs from input files
     #' @param model An EEIO model object with model specs and IO tables loaded
@@ -97,6 +84,7 @@ def get_aggregation_specs(model: "USEEIOModel", config_paths = None):
     #' If NULL, built-in config files are used.
     #' @return A model with the specified aggregation and disaggregation specs.
     '''
+    logging.debug("check")
     model.AggregationSpecs = dict()
     for configFile in model.specs['AggregationSpecs']: # is this right?
         logging.info(f"Loading aggregation specification file for {configFile}...")
@@ -105,7 +93,7 @@ def get_aggregation_specs(model: "USEEIOModel", config_paths = None):
         if('Aggregation' in config.keys()):
             for key in config['Aggregation']:
                 model.AggregationSpecs[key] = config["Aggregation"][key]
-    return(model)
+    # return(model)
 
 def aggregate_sectors_in_tbs(model: "USEEIOModel", aggregation_specs: dict, sat_table, sat):
     '''
@@ -178,6 +166,7 @@ def aggregate_make_table(model: "USEEIOModel", aggregation_specs: dict):
     model.MakeTransactions = model.MakeTransactions.drop(agg, axis = 0, errors = "ignore")
     model.MakeTransactions = model.MakeTransactions.drop(agg, axis = 1, errors = "ignore")
 
+    return(model.MakeTransactions)
 
 
 #DONE
@@ -201,12 +190,23 @@ def aggregate_use_table(model: "USEEIOModel", aggregation_specs, domestic = Fals
     agg = aggregation_specs['Sectors']
     for sector in agg[1:]: # First sector in list is the one we are aggregating to, so skip
         logging.debug("calling func...")
-        model.UseTransactions = aggregate_sector(model, agg[0], sector, "Use", domestic=domestic)
+        if domestic:
+            model.DomesticUseTransactions = aggregate_sector(model, agg[0], sector, "Use", domestic=domestic)
+        else:
+            model.UseTransactions = aggregate_sector(model, agg[0], sector, "Use", domestic=domestic)
 
     agg = agg[1:]
-    logging.debug("POSSIBLE SOURCE OF ERROR: Check table value here!")
-    model.UseTransactions = model.UseTransactions.drop(agg, axis = 0, errors = "ignore")
-    model.UseTransactions = model.UseTransactions.drop(agg, axis = 1, errors = "ignore")
+
+    if domestic:
+        model.DomesticUseTransactions = model.DomesticUseTransactions.drop(agg, axis = 0, errors = "ignore")
+        model.DomesticUseTransactions = model.DomesticUseTransactions.drop(agg, axis = 1, errors = "ignore")
+
+        return(model.DomesticUseTransactions)
+    else:
+        model.UseTransactions = model.UseTransactions.drop(agg, axis = 0, errors = "ignore")
+        model.UseTransactions = model.UseTransactions.drop(agg, axis = 1, errors = "ignore")
+
+        return(model.UseTransactions)
 
 #DONE
 def aggregate_va(model: "USEEIOModel", aggregation_specs):
@@ -232,9 +232,11 @@ def aggregate_va(model: "USEEIOModel", aggregation_specs):
         model.UseValueAdded = aggregate_sector(model, agg[0], sector, "VA")
 
     agg = agg[1:]
-    logging.debug("POSSIBLE SOURCE OF ERROR: Check table value here!")
+    
     model.UseValueAdded = model.UseValueAdded.drop(agg, axis = 0, errors = "ignore")
     model.UseValueAdded = model.UseValueAdded.drop(agg, axis = 1, errors = "ignore")
+
+    return(model.UseValueAdded)
 
 #DONE
 def aggregate_sector(model: "USEEIOModel", main_sector:str, sector_to_remove:str, table_type:str, domestic:bool = False):
@@ -271,7 +273,6 @@ def aggregate_sector(model: "USEEIOModel", main_sector:str, sector_to_remove:str
         logging.debug("calling func...")
         removeColIndex = get_index(model.Industries['Code_Loc'], sector_to_remove)
         table = model.DomesticUseTransactions if domestic else model.UseTransactions
-        logging.debug("POSSIBLE SOURCE OF ERROR: Check table value here!")
     elif table_type == "Make":
         logging.debug("calling func...")
         mainRowIndex = get_index(model.Industries['Code_Loc'], main_sector)
@@ -282,7 +283,6 @@ def aggregate_sector(model: "USEEIOModel", main_sector:str, sector_to_remove:str
         logging.debug("calling func...")
         removeColIndex = get_index(model.Commodities['Code_Loc'], sector_to_remove)
         table = model.MakeTransactions
-        logging.debug("POSSIBLE SOURCE OF ERROR: Check table value here!")
     elif table_type == "VA":
         logging.debug("calling func...")
         mainRowIndex = get_index(model.ValueAddedMeta['Code_Loc'], main_sector)
@@ -293,7 +293,6 @@ def aggregate_sector(model: "USEEIOModel", main_sector:str, sector_to_remove:str
         logging.debug("calling func...")
         removeColIndex = get_index(model.Industries['Code_Loc'], sector_to_remove)
         table = model.UseValueAdded
-        logging.debug("POSSIBLE SOURCE OF ERROR: Check table value here!")
     else:
         sys.exit("Invalid table_type")
 
@@ -328,8 +327,7 @@ def get_index(sector_list:pd.DataFrame, sector:str):
     try:
         index = list(sector_list).index(sector)
     except:
-        index = -1 
-        logging.error("Failed to get index...")
+        index = -1
     return(index)
 
 

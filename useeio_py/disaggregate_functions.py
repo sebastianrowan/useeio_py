@@ -6,6 +6,7 @@ from . import configuration_functions, load_io_tables
 import logging
 import pkgutil
 import os
+import sys
 
 #TODO: Update all function documentation
 
@@ -26,6 +27,7 @@ def disaggregate_model(model):
         # Disaggregating main model components
         model.UseTransactions = disaggregate_use_table(model, disagg)
         model.MakeTransactions = disaggregate_make_table(model, disagg)
+        logging.debug("HELLO CHECK THIS!")
         model.UseValueAdded = disaggregate_va(model, disagg)
         model.DomesticUseTransactions = disaggregate_use_table(model, disagg, domestic=True)
 
@@ -66,19 +68,18 @@ def get_disaggregation_specs(model, config_paths = None):
 #' @param model An EEIO model object with model specs and IO tables loaded
 #' @param configpaths str vector, paths (including file name) of disagg configuration file(s).
 #' If NULL, built-in config files are used.
-#' @return A model with the specified aggregation and disaggregation specs.
+#' @return None
     '''
-    model.DisaggregationSpecs = list()
+    logging.debug("check")
+    model.DisaggregationSpecs = dict()
     for configFile in model.specs['DisaggregationSpecs']:
         logging.info(f"Loading disaggregation specification file for {configFile}...")
+        logging.debug("calling func...")
         config = configuration_functions.get_configuration(configFile, "disagg", config_paths)
 
-        if('Disaggregation' in config['names']):
-            model.DisaggregationSpecs.append(config['Disaggregation'])
-    
-    model = disaggregate_setup(model, config_paths)
-
-    return(model)
+        if('Disaggregation' in config.keys()):
+            for key in config['Disaggregation']:
+                model.DisaggregationSpecs[key] = config['Disaggregation'][key]
 
 
 #TODO: Test implementation

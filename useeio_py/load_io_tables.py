@@ -29,7 +29,7 @@ def load_io_data(model, config_paths = None):
         "UseValueAdded", "FinalDemand", "DomesticFinalDemand",
         "InternationalTradeAdjustment"
     ]
-
+    
     # Load IO data
     if model.specs['IODataSource'] == "BEA":
         logging.debug("calling func...")
@@ -92,7 +92,6 @@ def load_io_data(model, config_paths = None):
             model
         ) 
     # Check for aggregation
-    logging.debug("WORKING ON AGGREGATION")
     if "AggregationSpecs" in model.specs.keys():
         if model.specs['AggregationSpecs'] is not None:
             logging.debug("calling func...")
@@ -102,6 +101,7 @@ def load_io_data(model, config_paths = None):
 
 
     # Check for disaggregation
+    logging.debug("WORKING ON DISAGGREGATION...")
     if "DisaggregationSpecs" in model.specs.keys():
         if model.specs['DisaggregationSpecs'] is not None:
             logging.debug("calling func...")
@@ -444,7 +444,7 @@ def load_commodity_and_industry_output(model):
             logging.debug("calling func...")
             model.MultiYearCommodityOutput[str(year)] = stateior_functions.get_two_region_io_data(tmp_model, "CommodityOutput")
 
-#TODO: Test implementation
+#Done
 def calculate_industry_commodity_output(model):
     '''
     Calculate industry and commodity output vectors from model components.

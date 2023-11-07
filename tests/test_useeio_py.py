@@ -26,13 +26,11 @@ Currently working from:
         >>> aggregate_sector()
 '''
 
-# model = USEEIOModel('USEEIOv2.1-422')
+model = USEEIOModel('USEEIOv2.1-422')
 
 
-iris = sns.load_dataset("iris").head()
+# iris = sns.load_dataset("iris").head()
 
-print(iris.iloc[1,:])
-print(iris.iloc[-1,:])
 # a = "sepal_length"
 # b = ["sepal_width", "petal_length"]
 
