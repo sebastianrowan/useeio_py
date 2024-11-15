@@ -4,6 +4,8 @@
 import pandas as pd
 import numpy as np
 import importlib.resources
+import logging
+import sys
 
 
 def start_logging():
@@ -567,6 +569,30 @@ def remove_extra_spaces(s):
     return(s)
     '''
 
+#DONE
+def get_index(sector_list:pd.DataFrame, sector:str):
+    '''
+    Return the index where a sector occurrs in a sectorList
+
+    Parameters
+    ----------
+    sector_list : pandas.DataFrame
+        Dataframe (of strings) to match the index of the sector param
+    sector : str
+        String of the sector to look the index for
+    
+    Returns
+    -------
+    int
+        Index of sector in sectorList
+    '''
+    logging.debug("check")
+    try:
+        index = list(sector_list).index(sector)
+    except:
+        index = -1
+    return(index)
+
 def remove_number_in_slashes(s):
     '''
     #' Remove numbers in slashes from a string, like /1/
@@ -591,19 +617,6 @@ def convert_str_encoding_lat_into_ascii(s):
     '''
     s <- iconv(s, from = 'latin1', to = 'ASCII', sub='')
     return(s)
-    '''
-
-#TODO: No need for python to write to .rda. Ensure that saving as parquet or similar will be suitable replacement here.
-    '''
-    #' Write external data to .rda.
-    #' @param data An R data object.
-    #' @param data_name A string specifying data name.
-    #' @description Write external data to .rda.
-    writeDatatoRDA <- function(data, data_name) {
-    assign(data_name, data)
-    do.call(eval(str2expression("usethis::use_data")),
-            list(as.name(data_name), overwrite = TRUE))
-    }
     '''
 
 def generate_model_sector_schema(model):

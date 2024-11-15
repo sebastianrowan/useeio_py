@@ -20,16 +20,22 @@ import logging
 '''
 Currently working from:
     useeio_model.py >>> __init__() >>> load_io_tables.load_io_data()
-    >>> load_io_tables.load_io_data() >>> aggregate_functions.aggregate_model()
-        >>> aggregate_va()
-        >>> aggregate_use_table()
-        >>> aggregate_sector()
+    >>> load_io_tables.load_io_data() >>> disaggregate_functions.aggregate_model()
+        >>> disaggregate_model()
+        >>> disaggregate_use_table()
+        >>> specified_use_disagg()
+        >>> apply_allocation()
 '''
 
 model = USEEIOModel('USEEIOv2.1-422')
 
 
-# iris = sns.load_dataset("iris").head()
+# iris = sns.load_dataset("iris")
+# iris2 = iris.loc[
+#     (iris['sepal_width'] == 3.0) & 
+#     (iris['petal_length'] == 1.4)
+# ]
+# print(iris2)
 
 # a = "sepal_length"
 # b = ["sepal_width", "petal_length"]

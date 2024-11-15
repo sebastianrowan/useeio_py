@@ -105,9 +105,9 @@ def load_io_data(model, config_paths = None):
     if "DisaggregationSpecs" in model.specs.keys():
         if model.specs['DisaggregationSpecs'] is not None:
             logging.debug("calling func...")
-            disaggregate_functions.get_disaggregation_specs(model, config_paths)
+            model = disaggregate_functions.get_disaggregation_specs(model, config_paths)
             logging.debug("calling func...")
-            disaggregate_functions.disaggregate_model(model) #TODO
+            model = disaggregate_functions.disaggregate_model(model)
 
     # Check for hybridization
     if model.specs['ModelType'] == "EEIO-IH":
